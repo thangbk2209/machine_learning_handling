@@ -57,7 +57,7 @@ def prepare_data(link, sliding):
     test_X_decoder = cpu_nomal[train_size+val_size-1:length-1]
     test_y = y[train_size+val_size:]
 
-    return train_X_encoder, np.array(train_X_decoder), train_y, val_X_encoder, val_X_decoder, val_Y, test_X_encoder, test_X_decoder, test_y
+    return minCPU, maxCPU, train_X_encoder, np.array(train_X_decoder), train_y, val_X_encoder, val_X_decoder, val_Y, test_X_encoder, test_X_decoder, test_y
 
 # print "test"
 # a=[[1]]
@@ -97,11 +97,11 @@ num_layers = 1
 time_step = 1
 n_output = 1
 learning_rate = 0.01
-training_epochs = 2
-batch_size = 4
+training_epochs = 20
+batch_size = 32
 display_step = 1
 
-train_X_encoder, train_X_decoder, train_y, val_X_encoder, val_X_decoder, val_Y, test_X_encoder, test_X_decoder, test_y = prepare_data(link,sliding)
+minCPU, maxCPU, train_X_encoder, train_X_decoder, train_y, val_X_encoder, val_X_decoder, val_Y, test_X_encoder, test_X_decoder, test_y = prepare_data(link,sliding)
 print train_X_decoder
 print train_y
 # cell = tf.contrib.rnn.LSTMCell(num_units, state_is_tuple=True)
@@ -115,10 +115,20 @@ outputs_encoder,state_encoder=rnn.static_rnn(rnn_cells_encoder,input_encoder, sc
 
 # rnn_cells_decoder = init_decoder(num_units,num_layers,sliding_decode)
 x2 = tf.placeholder("float",[None,sliding/time_step,time_step])
+y = tf.placeholder("float", [None, n_output])
 input_decoder=tf.unstack(x2 ,sliding/time_step,time_step)
 # outputs_decoder,state_decoder=rnn.static_rnn(rnn_cells_decoder,input_decoder, scope = "layer",dtype="float32", initial_state=init_state)
 outputs_decoder,state_decoder=rnn.static_rnn(rnn_cells_encoder,input_decoder, scope = "layer",dtype="float32", initial_state=state_encoder)
 
+out_weights=tf.Variable(tf.random_normal([num_units,n_output]))
+out_bias=tf.Variable(tf.random_normal([n_output]))
+prediction=tf.matmul(outputs_decoder[-1],out_weights)+out_bias
+prediction_inverse = prediction * (maxCPU - minCPU) + minCPU
+error = tf.reduce_sum(tf.abs(tf.subtract(prediction_inverse,y)))/len(test_y)
+# loss_function
+loss=tf.reduce_mean(tf.square(y-prediction))
+#optimization
+optimizer=tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 # # decoder
 # cell_state = tf.placeholder(tf.float32, [batch_size, num_units])
 # hidden_state = tf.placeholder(tf.float32, [batch_size, num_units])
@@ -161,50 +171,43 @@ with tf.Session() as sess:
     for epoch in range(training_epochs):
         # Train with each example
         total_batch = int(len(train_X_encoder)/batch_size)
+        print total_batch
+        # sess.run(updates)
+        avg_cost = 0
         for i in range(total_batch):
-            # sess.run(updates)
-            avg_cost = 0
-            for i in range(total_batch):
-                batch_xs_encoder,batch_xs_decoder ,batch_ys = train_X_encoder[i*batch_size:(i+1)*batch_size], train_X_decoder[i*batch_size:(i+1)*batch_size],train_y[i*batch_size:(i+1)*batch_size]
-                print "batch"
-                print batch_xs_encoder
-                print "batch"
-                print batch_xs_decoder
-                print batch_ys
-                # sess.run(optimizer, feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder,y: batch_ys})
-                # avg_cost += sess.run(loss,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder,y: batch_ys})/total_batch
-                print "outputs"
-                state = sess.run(state_encoder,feed_dict={x1: batch_xs_encoder})
-                # print state
-                j = 0
-                c = []
-                h = []
-                # for i in chain.from_iterable(state):
-                #     if(j == 0):
-                #         c = i 
-                #     else:
-                #         h = i
-                #     j+=1
-                # print 'c'
-                # print c 
-                # print 'h' 
-                # print h 
-                print sess.run(outputs_decoder,feed_dict={x1: batch_xs_encoder,x2: batch_xs_encoder})
-                # print sess.run(outputs_decoder,feed_dict={x: batch_xs_encoder,cell_state: c,hidden_state:h})
-                # print "outputs"
-                # print sess.run(outputs[-1])
+            batch_xs_encoder,batch_xs_decoder ,batch_ys = train_X_encoder[i*batch_size:(i+1)*batch_size], train_X_decoder[i*batch_size:(i+1)*batch_size],train_y[i*batch_size:(i+1)*batch_size]
+            # print i
+            # print "batch"
+            # print batch_xs_encoder
+            # print "batch"
+            # print batch_xs_decoder
+            # print batch_ys
+            # # sess.run(optimizer, feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder,y: batch_ys})
+            
+            # print "outputs"
+            
+            # state = sess.run(state_encoder,feed_dict={x1: batch_xs_encoder})
+            sess.run(optimizer,feed_dict={x1: batch_xs_encoder,x2: batch_xs_encoder, y:batch_ys})
+            avg_cost += sess.run(loss,feed_dict={x1: batch_xs_encoder,x2: batch_xs_encoder,y: batch_ys})/total_batch
+            if(i == total_batch -1):
+                print sess.run(state_encoder,feed_dict={x1: batch_xs_encoder})
+            # print sess.run(outputs_decoder,feed_dict={x: batch_xs_encoder,cell_state: c,hidden_state:h})
+            # print "outputs"
+            # print sess.run(outputs[-1])
         # Display logs per epoch step
         if epoch % display_step == 0:
             print "Epoch:", '%04d' % (epoch+1),"cost=", "{:.9f}".format(avg_cost)
             avg_set.append(avg_cost)
             epoch_set.append(epoch+1)
-            
+            print sess.run(state_encoder,feed_dict={x1: batch_xs_encoder})
             print "Training phase finished"
+            print sess.run(error,feed_dict={x1: val_X_encoder,x2: val_X_encoder,y: val_Y})
+    print sess.run(state_encoder,feed_dict={x1: batch_xs_encoder})
     print "out_weights"
     print sess.run(out_weights)
     
     # out = rnn.static_rnn(lstm_layer,test_X,dtype="float32")
-    out = sess.run(prediction, feed_dict={x1:test_X_encoder,x2:test_X_decoder})
+    out = sess.run(prediction, feed_dict={x1:test_X_encoder,x2:test_X_encoder})
     predict = out * (maxCPU - minCPU) + minCPU
     # predict = tf.matmul(outputs[-1],out_weights) + out_bias
     print predict
