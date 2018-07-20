@@ -54,8 +54,8 @@ sliding = 2
 num_units = 2
 n_input = 1
 n_output = 1
-learning_rate = 0.001
-training_epochs = 200
+learning_rate = 0.01
+training_epochs = 20
 batch_size = 64
 display_step = 1
 
@@ -103,28 +103,10 @@ with tf.Session() as sess:
     # out = rnn.static_rnn(lstm_layer,test_X,dtype="float32")
     out = sess.run(prediction, feed_dict={x:test_X})
     predict = out * (maxCPU - minCPU) + minCPU
+    test_y_inverse = test_y * (maxCPU - minCPU) + minCPU
     # predict = tf.matmul(outputs[-1],out_weights) + out_bias
     # print predict
-    error = tf.reduce_sum(tf.abs(tf.subtract(predict,test_y)))/len(test_y)
+    error = tf.reduce_sum(tf.abs(tf.subtract(predict,test_y_inverse)))/len(test_y)
     print sess.run(error)
 predictionDf = pd.DataFrame(np.array(predict))
 predictionDf.to_csv('result.csv', index=False, header=None)
-# def RNN(x, weight, bias):
-#     """
-#     Forward-propagation.
-#     IMPORTANT: yhat is not softmax since TensorFlow's softmax_cross_entropy_with_logits() does that internally.
-#     """
-#     # inputs = tf.placeholder(tf.float32, [None, config.sliding, config.input_size])
-#     # targets = tf.placeholder(tf.float32, [None, config.output_size])
-#     def _create_one_cell():
-#         return tf.contrib.rnn.LSTMCell(lstm_size, state_is_tuple=True)
-#         if config.keep_prob < 1.0:
-#             return tf.contrib.rnn.DropoutWrapper(lstm_cell, output_keep_prob=config.keep_prob)
-#     cell = tf.contrib.rnn.MultiRNNCell(
-#         [_create_one_cell() for _ in range(num_layers)], 
-#         state_is_tuple=True
-#     ) if config.num_layers > 1 else _create_one_cell()
-#     weight = tf.Variable(tf.random_normal([lstm_size, N_OUTPUTS]))
-#     bias = tf.Variable(tf.random_normal([N_OUTPUTS]))
-#     predictions = tf.matmul(outputs, weight) + bias
-#     return tf.matmul(outputs[-1], weights['out']) + biases['out']

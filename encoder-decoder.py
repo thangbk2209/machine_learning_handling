@@ -7,7 +7,6 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import pandas as pd 
 from tensorflow.contrib import rnn
-from itertools import chain
 def scaling_data(X):
     min = np.amin(X)
     max = np.amax(X)
@@ -98,15 +97,18 @@ time_step = 1
 n_output = 1
 learning_rate = 0.01
 training_epochs = 20
-batch_size = 32
+batch_size = 4
 display_step = 1
 
 minCPU, maxCPU, train_X_encoder, train_X_decoder, train_y, val_X_encoder, val_X_decoder, val_Y, test_X_encoder, test_X_decoder, test_y = prepare_data(link,sliding)
-print train_X_decoder
-print train_y
+# print train_X_decoder
+print 'data'
+print train_y[0]
 # cell = tf.contrib.rnn.LSTMCell(num_units, state_is_tuple=True)
 # cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=0.8)
 # rnn_cells = tf.contrib.rnn.MultiRNNCell([cell for _ in range(num_layers)], state_is_tuple = True)
+
+print train_X_encoder[0]
 
 rnn_cells_encoder = init_encoder(num_units, num_layers,sliding)
 x1 = tf.placeholder("float",[None,sliding/time_step,time_step])
@@ -122,9 +124,11 @@ outputs_decoder,state_decoder=rnn.static_rnn(rnn_cells_encoder,input_decoder, sc
 
 out_weights=tf.Variable(tf.random_normal([num_units,n_output]))
 out_bias=tf.Variable(tf.random_normal([n_output]))
-prediction=tf.matmul(outputs_decoder[-1],out_weights)+out_bias
+
+prediction=tf.nn.sigmoid(tf.add(tf.matmul(outputs_decoder[-1],out_weights),out_bias))
 prediction_inverse = prediction * (maxCPU - minCPU) + minCPU
-error = tf.reduce_sum(tf.abs(tf.subtract(prediction_inverse,y)))/len(test_y)
+y_inverse = y * (maxCPU - minCPU) + minCPU
+error = tf.reduce_sum(tf.abs(tf.subtract(prediction_inverse,y_inverse)))/len(test_y)
 # loss_function
 loss=tf.reduce_mean(tf.square(y-prediction))
 #optimization
@@ -209,9 +213,10 @@ with tf.Session() as sess:
     # out = rnn.static_rnn(lstm_layer,test_X,dtype="float32")
     out = sess.run(prediction, feed_dict={x1:test_X_encoder,x2:test_X_encoder})
     predict = out * (maxCPU - minCPU) + minCPU
+    test_y_inverse = test_y * (maxCPU - minCPU) + minCPU
     # predict = tf.matmul(outputs[-1],out_weights) + out_bias
     print predict
-    error = tf.reduce_sum(tf.abs(tf.subtract(predict,test_y)))/len(test_y)
+    error = tf.reduce_sum(tf.abs(tf.subtract(predict,test_y_inverse)))/len(test_y)
     print sess.run(error)
 predictionDf = pd.DataFrame(np.array(predict))
 predictionDf.to_csv('result.csv', index=False, header=None)
