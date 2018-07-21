@@ -24,11 +24,11 @@ disk_space = df['disk_space'].values
 # define constant
 train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
-sliding_encoder = 4
+sliding_encoder = 12
 sliding_decoder = 2
 display_step = 1
 activation = 1
-num_units = 4
+num_units = 2
 num_layers = 1
 learning_rate = 0.01
 epochs = 200
@@ -37,9 +37,7 @@ n_output = 1
 batch_size = 4
 
 
-
-
-model = Model(mem, train_size, valid_size, 
+model = Model(cpu, train_size, valid_size, 
     sliding_encoder, sliding_decoder, batch_size,
     num_units, activation, num_layers, 
     # n_input = None, n_output = None,

@@ -9,12 +9,14 @@ import pandas as pd
 
 
 class TimeseriesBNN:
-    def __init__(self, original_data = None, train_size = None, valid_size = None, sliding_encoder = None, sliding_decoder = None):
+    def __init__(self, original_data = None, train_size = None, valid_size = None, 
+    sliding_encoder = None, sliding_decoder = None, time_steps = None):
         self.original_data = original_data
         self.train_size = train_size
         self.valid_size = valid_size
         self.sliding_encoder = sliding_encoder
         self.sliding_decoder = sliding_decoder
+        self.time_steps = time_steps
     def scaling_data(self, X):
         min = np.amin(X)
         max = np.amax(X)
@@ -34,19 +36,29 @@ class TimeseriesBNN:
         dataX_encoder = self.create_x(self.original_scaled, self.sliding_encoder)
         dataX_decoder = self.create_x(self.original_scaled, self.sliding_decoder)
         print 'dataX_decoder'
-        print dataX_encoder[0]
-        print dataX_decoder[0]
-        # print self.minTimeSeries
+        # print dataX_encoder[0]
+        # print dataX_decoder[0]
+        print self.minTimeseries
         print self.maxTimeSeries
         
         self.train_x_encoder = dataX_encoder[0:self.train_size - self.sliding_encoder]
-        self.valid_x_encoder = dataX_encoder[self.train_size - self.sliding_encoder: self.train_size + self.valid_size - self.sliding_encoder]
-        self.test_x_encoder = dataX_encoder[self.train_size + self.valid_size - self.sliding_encoder:]
+        self.train_x_encoder = np.array(self.train_x_encoder)
+        self.train_x_encoder = np.reshape(self.train_x_encoder, (self.train_x_encoder.shape[0], self.train_x_encoder.shape[1]/self.time_steps, self.time_steps))
+        print 'self.train_x_encoder'
+        print self.train_x_encoder
+        self.valid_x_encoder = np.array(dataX_encoder[self.train_size - self.sliding_encoder: self.train_size + self.valid_size - self.sliding_encoder])
+        self.valid_x_encoder = np.reshape(self.valid_x_encoder, (self.valid_x_encoder.shape[0], self.valid_x_encoder.shape[1]/self.time_steps, self.time_steps))
+       
+        self.test_x_encoder = np.array(dataX_encoder[self.train_size + self.valid_size - self.sliding_encoder:])
+        self.test_x_encoder = np.reshape(self.test_x_encoder, (self.test_x_encoder.shape[0], self.test_x_encoder.shape[1]/self.time_steps, self.time_steps))
         
+        self.train_x_decoder = np.array(dataX_decoder[self.sliding_encoder - self.sliding_decoder:self.train_size - self.sliding_decoder])
+        self.train_x_decoder = np.reshape(self.train_x_decoder, (self.train_x_decoder.shape[0], self.train_x_decoder.shape[1]/self.time_steps, self.time_steps))
         
-        self.train_x_decoder = dataX_decoder[self.sliding_encoder - self.sliding_decoder:self.train_size - self.sliding_decoder]
-        self.valid_x_decoder = dataX_decoder[self.train_size - self.sliding_decoder: self.train_size + self.valid_size - self.sliding_decoder]
-        self.test_x_decoder = dataX_decoder[self.train_size + self.valid_size - self.sliding_decoder:]
+        self.valid_x_decoder = np.array(dataX_decoder[self.train_size - self.sliding_decoder: self.train_size + self.valid_size - self.sliding_decoder])
+        self.valid_x_decoder = np.reshape(self.valid_x_decoder, (self.valid_x_decoder.shape[0], self.valid_x_decoder.shape[1]/self.time_steps, self.time_steps))
+        self.test_x_decoder = np.array(dataX_decoder[self.train_size + self.valid_size - self.sliding_decoder:])
+        self.test_x_decoder = np.reshape(self.test_x_decoder, (self.test_x_decoder.shape[0], self.test_x_decoder.shape[1]/self.time_steps, self.time_steps))
 
         self.train_y = self.original_scaled[self.sliding_encoder : self.train_size]
         self.valid_y = self.original_scaled[self.train_size : self.train_size + self.valid_size]
