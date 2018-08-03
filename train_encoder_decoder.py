@@ -34,24 +34,25 @@ train_size = int(0.6 * len(cpu))
 print (train_size)
 valid_size = int(0.2 * len(cpu))
 
-sliding_encoder = 4
+sliding_encoder = 20
 sliding_decoder = 4
-sliding_inference = 4
+sliding_inference = 10
 display_step = 1
 activation_decoder = 1
 activation_inference = 1
-num_units =4
+num_units = 10
 num_layers = 1
 learning_rate = 0.01
-epochs = 2
-input_dim = 4
+epochs_encoder_decoder = 200
+epochs_inference = 200
+input_dim = 1
 n_output = 1
-batch_size = 1
+batch_size = 4
 
 
 model = BNN(cpu, train_size, valid_size, 
     sliding_encoder, sliding_decoder, sliding_inference, batch_size,
     num_units, num_layers, activation_decoder, activation_inference,
     # n_input = None, n_output = None,
-    learning_rate, epochs, input_dim, display_step )
+    learning_rate, epochs_encoder_decoder,epochs_inference, input_dim, display_step )
 model.fit()

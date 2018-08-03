@@ -27,9 +27,9 @@ Pred_df = read_csv('results/predictionResult.csv', header=None, index_col=False,
 
 RealDataset = Real_df['mem'].values
 
-train_size = 2880
+train_size = int(len(RealDataset)*0.8)
 test_size = len(RealDataset) - train_size
-print RealDataset
+print (RealDataset)
 Pred = Pred_df.values
 
 # predictions = []
@@ -44,7 +44,7 @@ realTestData = []
 # for j in range(train_size+sliding, len(RealDataset),1):
 #     realTestData.append(RealDataset[j])
 # print len(realTestData)
-print len(Pred)
+print (len(Pred))
 # testScoreMAE = mean_absolute_error(Pred_TestInverse, realTestData)
 # print 'test score', testScoreMAE
 ax = plt.subplot()
