@@ -37,17 +37,17 @@ class TimeseriesEncoderDecoder:
         self.original_scaled, self.minTimeseries, self.maxTimeSeries = self.scaling_data(self.original_data)
         dataX_encoder = self.create_x(self.original_scaled, self.sliding_encoder)
         dataX_decoder = self.create_x(self.original_scaled, self.sliding_decoder)
-        print ('dataX_decoder')
-        # print dataX_encoder[0]
-        # print dataX_decoder[0]
-        print (self.minTimeseries)
-        print (self.maxTimeSeries)
+        # print ('dataX_decoder')
+        # # print dataX_encoder[0]
+        # # print dataX_decoder[0]
+        # print (self.minTimeseries)
+        # print (self.maxTimeSeries)
         
         self.train_x_encoder = dataX_encoder[0:self.train_size - self.sliding_encoder]
         self.train_x_encoder = np.array(self.train_x_encoder)
         self.train_x_encoder = np.reshape(self.train_x_encoder, (self.train_x_encoder.shape[0], int(self.train_x_encoder.shape[1]/self.input_dim), self.input_dim))
-        print ('self.train_x_encoder')
-        print (self.train_x_encoder)
+        # print ('self.train_x_encoder')
+        # print (self.train_x_encoder)
         self.valid_x_encoder = np.array(dataX_encoder[self.train_size - self.sliding_encoder: self.train_size + self.valid_size - self.sliding_encoder])
         self.valid_x_encoder = np.reshape(self.valid_x_encoder, (self.valid_x_encoder.shape[0], int(self.valid_x_encoder.shape[1]/self.input_dim), self.input_dim))
        
@@ -87,29 +87,33 @@ class TimeseriesBNN:
         self.original_scaled = timeseries_encoder_decoder.original_scaled
         data_x_inference = timeseries_encoder_decoder.create_x(timeseries_encoder_decoder.original_scaled, self.sliding_inference)
         self.train_x_inference = np.array(data_x_inference[self.sliding_encoder - self.sliding_inference:self.train_size - self.sliding_inference])
-        self.train_x_inference = np.reshape(self.train_x_inference, (self.train_x_inference.shape[0], int(self.train_x_inference.shape[1]/self.input_dim), self.input_dim))
-        self.valid_x_inference = np.array(data_x_inference[self.train_size - self.sliding_inference: self.train_size + self.valid_size - self.sliding_inference])
-        self.test_x_inference = np.array(data_x_inference[self.train_size + self.valid_size - self.sliding_inference:])
+        self.train_x_inference = np.reshape(self.train_x_inference, (self.train_x_inference.shape[0], 1, int(self.train_x_inference.shape[1])))
         
+        self.valid_x_inference = np.array(data_x_inference[self.train_size - self.sliding_inference: self.train_size + self.valid_size - self.sliding_inference])
+        self.valid_x_inference = np.reshape(self.valid_x_inference, (self.valid_x_inference.shape[0], 1, int(self.valid_x_inference.shape[1])))
+
+        self.test_x_inference = np.array(data_x_inference[self.train_size + self.valid_size - self.sliding_inference:])
+        self.test_x_inference = np.reshape(self.test_x_inference, (self.test_x_inference.shape[0], 1, int(self.test_x_inference.shape[1])))
+
         self.train_y_inference = self.original_scaled[self.sliding_encoder: self.train_size]
         self.valid_y_inference = self.original_scaled[self.train_size: self.train_size + self.valid_size]
         self.test_y_inference = self.original_scaled[self.train_size + self.valid_size:]
-        print ('train data prepared')
-        print (self.train_x_encoder[0])
-        print (self.train_x_decoder[0])
-        print ('self.train_x_inference')
-        print (self.train_x_inference[0])
-        print (self.train_x_inference[1])
-        print ('self.train_y_inference')
-        print (self.train_y_inference[0])
+        # print ('train data prepared')
+        # print (self.train_x_encoder[0])
+        # print (self.train_x_decoder[0])
+        # print ('self.train_x_inference')
+        # print (self.train_x_inference[0])
+        # print (self.train_x_inference[1])
+        # print ('self.train_y_inference')
+        # print (self.train_y_inference[0])
         
-        print ('validation data prepared')
-        print (self.valid_x_encoder[0])
-        print (self.valid_x_decoder[0])
-        print (self.valid_x_inference[0])
+        # print ('validation data prepared')
+        # print (self.valid_x_encoder[0])
+        # print (self.valid_x_decoder[0])
+        # print (self.valid_x_inference[0])
 
-        print ('test data prepared')
-        print (self.test_x_encoder[0])
-        print (self.test_x_decoder[0])
-        print (self.test_x_inference[0])
+        # print ('test data prepared')
+        # print (self.test_x_encoder[0])
+        # print (self.test_x_decoder[0])
+        # print (self.test_x_inference[0])
         return self.train_x_encoder, self.valid_x_encoder, self.test_x_encoder, self.train_x_decoder, self.valid_x_decoder, self.test_x_decoder, self.train_y_decoder, self.valid_y_decoder, self.test_y_decoder, self.minTimeseries, self.maxTimeSeries, self.train_x_inference, self.valid_x_inference, self.test_x_inference, self.train_y_inference, self.valid_y_inference, self.test_y_inference
