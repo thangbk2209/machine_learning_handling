@@ -92,11 +92,11 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [18,21]
+sliding_encoders = [6,12,15,18,21,24]
 sliding_decoders = [2,3,4,5]
-sliding_inferences = [10]
+sliding_inferences = [2,3,4,5]
 batch_size_arr = [4,8,32,64,128]
-num_units_LSTM_arr = [4]
+num_units_LSTM_arr = [4,8,16,32,64]
 num_layers = [1]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
@@ -109,8 +109,8 @@ epochs_encoder_decoder = 2000
 epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
-input_dim = [1]
-num_units_inference_arr = [20]
+input_dim = [1,2]
+num_units_inference_arr = [4,8,16,32,64,128]
 
 # n_output_encoder_decoder = 1
 param_grid = {
@@ -133,7 +133,7 @@ print(type(a))
 for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
-pool = Pool(8)
+pool = Pool(16)
 pool.map(train_model, list(queue.queue))
 pool.close()
 pool.join()
