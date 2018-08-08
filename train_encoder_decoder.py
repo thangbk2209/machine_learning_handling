@@ -95,9 +95,9 @@ valid_size = int(0.2 * len(cpu))
 
 sliding_encoders = [6,12,15,18,21,24]
 sliding_decoders = [2,3,4,5]
-sliding_inferences = [10,11,12,13]
+sliding_inferences = [6,7,8,9]
 batch_size_arr = [4,8,32,64,128]
-num_units_LSTM_arr = [4,8]
+num_units_LSTM_arr = [2,4,8]
 num_layers = [1]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
