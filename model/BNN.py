@@ -223,10 +223,12 @@ class Model:
 
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
+            plt.plot(cost_train_encoder_decoder_set)
+            plt.plot(cost_valid_encoder_decoder_set)
             plt.title('model loss')
             plt.ylabel('loss')
             plt.xlabel('epoch')
-            plt.legend(['train', 'validation'], loc='upper left')
+            plt.legend(['train_inference', 'validation_inference','train_encoder_decoder', 'validation_encoder_decoder'], loc='upper left')
             # plt.show()
             # plt.savefig('/home/thangnguyen/hust/lab/machine_learning_handling/history/history_mem.png')
             plt.savefig(history_file)
