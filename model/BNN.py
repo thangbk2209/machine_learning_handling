@@ -4,6 +4,8 @@ from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from pandas import read_csv
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd 
 from tensorflow.contrib import rnn

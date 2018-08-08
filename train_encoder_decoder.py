@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
-
+import matplotlib
+matplotlib.use('Agg')
 from multiprocessing import Pool
 from queue import Queue
 from sklearn.model_selection import ParameterGrid
