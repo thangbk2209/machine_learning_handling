@@ -104,7 +104,7 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    pool = Pool(4)
+    pool = Pool(16)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
