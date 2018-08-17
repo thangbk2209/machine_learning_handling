@@ -42,7 +42,7 @@ class Model:
         self.num_units_inference = num_units_inference
         self.patience = patience
     def preprocessing_data(self):
-        print ('timeseries1')
+        # print ('timeseries1')
         timeseries = TimeseriesBNN(self.original_data, self.train_size, self.valid_size, self.sliding_encoder, self.sliding_decoder, self.sliding_inference, self.input_dim)
         print ('timeseries')
         self.train_x_encoder, self.valid_x_encoder, self.test_x_encoder, self.train_x_decoder, self.valid_x_decoder, self.test_x_decoder, self.train_y_decoder, self.valid_y_decoder, self.test_y_decoder, self.min_y, self.max_y, self.train_x_inference, self.valid_x_inference, self.test_x_inference, self.train_y_inference, self.valid_y_inference, self.test_y_inference = timeseries.prepare_data()
