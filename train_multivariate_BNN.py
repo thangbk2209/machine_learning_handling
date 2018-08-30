@@ -32,12 +32,12 @@ def train_model(item):
     activation= item["activation"]
     input_dim = item["input_dim"]
     num_units_inference = item["num_units_inference"]    
-
+    optimizer = item["optimizer"]
     model = BNN_multivariate(dataset_original, external_feature, train_size, valid_size, 
         sliding_encoder =  sliding_encoder, sliding_decoder = sliding_decoder,
         sliding_inference = sliding_inference, batch_size = batch_size,
         num_units_LSTM = num_units_LSTM, num_layers = num_layer, 
-        activation = activation,
+        activation = activation,optimizer = optimizer
         learning_rate = learning_rate, epochs_encoder_decoder = epochs_encoder_decoder,
         epochs_inference = epochs_inference,
         input_dim = input_dim, num_units_inference = num_units_inference, patience = patience )
@@ -45,7 +45,7 @@ def train_model(item):
     summary = open("results/mem/5minutes/evaluate.csv",'a+')
     summary.write(str(sliding_encoder)+','+ str(sliding_decoder)+','+ str(sliding_inference)+','+ 
     str(batch_size)+','+ str(num_units_LSTM)+','+ str(num_layer)+','+ str(activation)+','+ 
-    str(input_dim)+','+ str(num_units_inference)+','+str(error[0])+','+str(error[1])+'\n')
+    str(input_dim)+','+ str(num_units_inference) +','+ str(optimizer) +','+str(error[0])+','+str(error[1])+'\n')
     # except:
     #     traceback.print_stack()
 # producer
@@ -83,7 +83,7 @@ activation= [1,2,3,4]
 # 2: adam
 # 3: rmsprop
 
-optimizer = [1,2,3]
+optimizers = [1,2,3]
 
 learning_rate = 0.01
 epochs_encoder_decoder = 2000
@@ -103,7 +103,8 @@ param_grid = {
         'num_layer': num_layers,
         'activation': activation,
         'input_dim': input_dim,
-        'num_units_inference': num_units_inference_arr
+        'num_units_inference': num_units_inference_arr,
+        'optimizer':optimizers
     }
 # Create combination of params.
 print ("check")
@@ -115,7 +116,7 @@ for item in list(ParameterGrid(param_grid)) :
 # Consumer
 if __name__ == '__main__':
     summary = open("results/mem/5minutes/evaluate.csv",'a+')
-    summary.write("sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,num_layers,activation,input_dim,num_units_inference,MAE,RMSE\n")
+    summary.write("sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,num_layers,activation,input_dim,num_units_inference,opimizer,MAE,RMSE\n")
  
     pool = Pool(16)
     pool.map(train_model, list(queue.queue))
