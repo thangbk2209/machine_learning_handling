@@ -37,7 +37,7 @@ def train_model(item):
         sliding_encoder =  sliding_encoder, sliding_decoder = sliding_decoder,
         sliding_inference = sliding_inference, batch_size = batch_size,
         num_units_LSTM = num_units_LSTM, num_layers = num_layer, 
-        activation = activation,optimizer = optimizer
+        activation = activation,optimizer = optimizer,
         learning_rate = learning_rate, epochs_encoder_decoder = epochs_encoder_decoder,
         epochs_inference = epochs_inference,
         input_dim = input_dim, num_units_inference = num_units_inference, patience = patience )
