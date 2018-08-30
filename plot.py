@@ -21,7 +21,7 @@ realFile = ['results/actualResult.csv']
 		# 	for optimize in optimizerArr: 
 				
 Real_df = read_csv('%s'%(realFile[0]), header=None, index_col=False, names=colnames, engine='python')
-Pred_df = read_csv('results/predictionResult.csv', header=None, index_col=False, engine='python')
+Pred_df = read_csv('results/mem/5minutes/predict24-5-3-32-2-1-1-1-1-8-1.csv', header=None, index_col=False, engine='python')
 
 # error_df = read_csv('%s/error_sliding=%s_batchsize=%s_optimize=%s.csv'%(modelName, sliding, batch_size, optimize), header=None, index_col=False, engine='python')
 

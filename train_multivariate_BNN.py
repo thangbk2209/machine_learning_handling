@@ -18,7 +18,7 @@ from tensorflow.contrib import rnn
 from model.encoder_decoder import Model as encoder_decoder
 from model.BNN_multivariate import Model as BNN_multivariate
 import traceback
-
+   
 queue = Queue()
 
 def train_model(item):
@@ -41,7 +41,11 @@ def train_model(item):
         learning_rate = learning_rate, epochs_encoder_decoder = epochs_encoder_decoder,
         epochs_inference = epochs_inference,
         input_dim = input_dim, num_units_inference = num_units_inference, patience = patience )
-    model.fit()
+    error = model.fit()
+    summary = open("results/mem/5minutes/evaluate.csv",'a+')
+    summary.write(str(sliding_encoder)+','+ str(sliding_decoder)+','+ str(sliding_inference)+','+ 
+    str(batch_size)+','+ str(num_units_LSTM)+','+ str(num_layer)+','+ str(activation)+','+ 
+    str(input_dim)+','+ str(num_units_inference)+','+str(error[0])+','+str(error[1])+'\n')
     # except:
     #     traceback.print_stack()
 # producer
@@ -54,33 +58,40 @@ cpu = df['cpu_rate'].values.reshape(-1,1)
 mem = df['mem_usage'].values.reshape(-1,1)
 disk_io_time = df['disk_io_time'].values.reshape(-1,1)
 disk_space = df['disk_space'].values.reshape(-1,1)
-dataset_original = [cpu]
-external_feature = [mem]
+dataset_original = [mem,cpu]
+external_feature = [mem,cpu]
 # dataset_original = np.concatenate((cpu,mem), axis = 1)
-print (dataset_original)
+# print (dataset_original)
+# lol61
 train_size = int(0.6 * len(cpu))
 # print (train_size)
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [6]
-sliding_decoders = [2]
-sliding_inferences = [2]
-batch_size_arr = [4]
-num_units_LSTM_arr = [2]
+sliding_encoders = [18,24]
+sliding_decoders = [4,8]
+sliding_inferences = [10,12]
+batch_size_arr = [4,8]
+num_units_LSTM_arr = [4,8]
 num_layers = [1]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [2]
+activation= [1,2,3,4]
+# 1: momentum
+# 2: adam
+# 3: rmsprop
+
+optimizer = [1,2,3]
+
 learning_rate = 0.01
-epochs_encoder_decoder = 20
-epochs_inference = 20
-patience = 20  #number of epoch checking for early stopping
+epochs_encoder_decoder = 2000
+epochs_inference = 2000
+patience = 40  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 input_dim = [1]
-num_units_inference_arr = [8]
+num_units_inference_arr = [8,16]
 
 n_output_encoder_decoder = 1
 param_grid = {
@@ -103,7 +114,10 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    pool = Pool(4)
+    summary = open("results/mem/5minutes/evaluate.csv",'a+')
+    summary.write("sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,num_layers,activation,input_dim,num_units_inference,MAE,RMSE\n")
+ 
+    pool = Pool(16)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()

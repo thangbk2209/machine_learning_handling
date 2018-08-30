@@ -56,31 +56,31 @@ mem = df['mem_usage'].values.reshape(-1,1)
 disk_io_time = df['disk_io_time'].values
 disk_space = df['disk_space'].values
 
-dataset_original = mem
+dataset_original = cpu
 train_size = int(0.6 * len(cpu))
 # print (train_size)
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [12,15,18,21,24]
-sliding_decoders = [2,3,4,5]
-sliding_inferences = [1,2,3,4,5,6,7,8,9,10,11,12]
-batch_size_arr = [4,8,16,32,64,128]
-num_units_LSTM_arr = [2,4,8]
+sliding_encoders = [4]
+sliding_decoders = [2]
+sliding_inferences = [10]
+batch_size_arr = [16]
+num_units_LSTM_arr = [8]
 num_layers = [1]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation_decoder = [1,2,3,4]
-activation_inferences = [1,2,3,4]
+activation_decoder = [1]
+activation_inferences = [1]
 learning_rate = 0.01
-epochs_encoder_decoder = 2000
-epochs_inference = 2000
-patience = 20  #number of epoch checking for early stopping
+epochs_encoder_decoder = 20
+epochs_inference = 20
+patience = 40  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 input_dim = [1]
-num_units_inference_arr = [4,6,8,10,12,14,16]
+num_units_inference_arr = [16]
 
 # n_output_encoder_decoder = 1
 param_grid = {

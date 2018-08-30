@@ -48,7 +48,7 @@ class Model:
         self.train_x_encoder, self.valid_x_encoder, self.test_x_encoder, self.train_x_decoder, self.valid_x_decoder, self.test_x_decoder, self.train_y_decoder, self.valid_y_decoder, self.test_y_decoder, self.min_y, self.max_y, self.train_x_inference, self.valid_x_inference, self.test_x_inference, self.train_y_inference, self.valid_y_inference, self.test_y_inference = timeseries.prepare_data()
     def init_RNN(self, num_units, num_layers):
         cell = tf.contrib.rnn.LSTMCell(num_units,state_is_tuple=True)
-        cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=0.5)
+        cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=0.8)
         rnn_cells = tf.contrib.rnn.MultiRNNCell([cell for _ in range(num_layers)], state_is_tuple = True)
         return rnn_cells
     def early_stopping(self, array, patience):
@@ -132,8 +132,9 @@ class Model:
             activation_infer = tf.nn.tanh
         elif(self.activation_inference == 4):
             activation_infer = tf.nn.elu
-        hidden_value = tf.layers.dense(input_inference, self.num_units_inference, activation=activation_infer)
-        output_inference = tf.layers.dense(hidden_value,self.n_output_inference, activation=activation_infer)
+        hidden_value1 = tf.layers.dense(input_inference, self.num_units_inference, activation=activation_infer)
+        hidden_value2 = tf.layers.dense(hidden_value1,4, activation=activation_infer)
+        output_inference = tf.layers.dense(hidden_value2,self.n_output_inference, activation=activation_infer)
         # loss
         loss_inference = tf.reduce_mean(tf.square(y2-output_inference))
         #optimization
@@ -238,7 +239,7 @@ class Model:
             predictionDf.to_csv(prediction_file, index=False, header=None)
             errorDf = pd.DataFrame(np.array(error))
             errorDf.to_csv(error_file, index=False, header=None)
-            errorDf.to_csv(prediction_file, index=False, header=None)
+            # errorDf.to_csv(error_file, index=False, header=None)
             vector_stateDf = pd.DataFrame(np.array(vector_state))
             vector_stateDf.to_csv(vector_state_file, index=False, header=None)
             sess.close()
