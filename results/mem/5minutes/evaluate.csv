@@ -3,3 +3,4 @@
 18,4,10,8,8,1,1,1,16,0.055610582,0.069337234
 18,4,10,8,8,1,1,1,8,0.03681554,0.046762776
 sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,num_layers,activation,input_dim,num_units_inference,MAE,RMSE
+sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,num_layers,activation,input_dim,num_units_inference,MAE,RMSE
