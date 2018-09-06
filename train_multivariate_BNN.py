@@ -70,9 +70,9 @@ valid_size = int(0.2 * len(cpu))
 
 sliding_encoders = [18,24]
 sliding_decoders = [4]
-sliding_inferences = [10]
-batch_size_arr = [4,8]
-num_units_LSTM_arr = [4]
+sliding_inferences = [10,11,12,13]
+batch_size_arr = [4,8,16]
+num_units_LSTM_arr = [4,8]
 num_layers = [1]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
@@ -83,9 +83,9 @@ activation= [1,2]
 # 2: adam
 # 3: rmsprop
 
-optimizers = [2]
+optimizers = [1,2,3]
 
-learning_rate = 0.02
+learning_rate = 0.01
 epochs_encoder_decoder = 2000
 epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
