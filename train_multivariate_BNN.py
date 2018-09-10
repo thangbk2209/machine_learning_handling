@@ -28,7 +28,6 @@ def train_model(item):
     sliding_inference = item["sliding_inference"]
     batch_size = item["batch_size"]
     num_units_LSTM = item["num_unit_LSTM"]
-    num_layer = item["num_layer"]
     activation= item["activation"]
     input_dim = item["input_dim"]
     num_units_inference = item["num_units_inference"]    
@@ -36,7 +35,7 @@ def train_model(item):
     model = BNN_multivariate(dataset_original, external_feature, train_size, valid_size, 
         sliding_encoder =  sliding_encoder, sliding_decoder = sliding_decoder,
         sliding_inference = sliding_inference, batch_size = batch_size,
-        num_units_LSTM = num_units_LSTM, num_layers = num_layer, 
+        num_units_LSTM = num_units_LSTM, 
         activation = activation,optimizer = optimizer,
         learning_rate = learning_rate, epochs_encoder_decoder = epochs_encoder_decoder,
         epochs_inference = epochs_inference,
@@ -44,7 +43,7 @@ def train_model(item):
     error = model.fit()
     summary = open("results/mem/5minutes/evaluate.csv",'a+')
     summary.write(str(sliding_encoder)+','+ str(sliding_decoder)+','+ str(sliding_inference)+','+ 
-    str(batch_size)+','+ str(num_units_LSTM)+','+ str(num_layer)+','+ str(activation)+','+ 
+    str(batch_size)+','+ str(num_units_LSTM)+','+ str(activation)+','+ 
     str(input_dim)+','+ str(num_units_inference) +','+ str(optimizer) +','+str(error[0])+','+str(error[1])+'\n')
     # except:
     #     traceback.print_stack()
@@ -58,8 +57,8 @@ cpu = df['cpu_rate'].values.reshape(-1,1)
 mem = df['mem_usage'].values.reshape(-1,1)
 disk_io_time = df['disk_io_time'].values.reshape(-1,1)
 disk_space = df['disk_space'].values.reshape(-1,1)
-dataset_original = [mem,cpu]
-external_feature = [mem,cpu]
+dataset_original = [mem]
+external_feature = [mem]
 # dataset_original = np.concatenate((cpu,mem), axis = 1)
 # print (dataset_original)
 # lol61
@@ -68,30 +67,29 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [18,24]
+sliding_encoders = [12]
 sliding_decoders = [4]
-sliding_inferences = [10,11,12,13]
-batch_size_arr = [4,8,16]
-num_units_LSTM_arr = [4,8]
-num_layers = [1]
+sliding_inferences = [8]
+batch_size_arr = [16]
+num_units_LSTM_arr = [[32,4]]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [1,2]
+activation= [1]
 # 1: momentum
 # 2: adam
 # 3: rmsprop
 
-optimizers = [1,2,3]
+optimizers = [1]
 
-learning_rate = 0.01
+learning_rate = 0.02
 epochs_encoder_decoder = 2000
 epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 input_dim = [1]
-num_units_inference_arr = [8,16]
+num_units_inference_arr = [8]
 
 n_output_encoder_decoder = 1
 param_grid = {
@@ -100,7 +98,6 @@ param_grid = {
         'sliding_inference': sliding_inferences,
         'batch_size': batch_size_arr,
         'num_unit_LSTM': num_units_LSTM_arr,
-        'num_layer': num_layers,
         'activation': activation,
         'input_dim': input_dim,
         'num_units_inference': num_units_inference_arr,

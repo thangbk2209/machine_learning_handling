@@ -30,7 +30,6 @@ class Model:
         self.sliding_inference = sliding_inference
         self.batch_size = batch_size
         self.num_units_LSTM = num_units_LSTM
-        self.num_layers = num_layers
         self.activation = activation
         self.optimizer = optimizer
         # self.n_input = n_input
@@ -43,22 +42,22 @@ class Model:
         self.num_units_inference = num_units_inference
         self.patience = patience
     def preprocessing_data(self):
-        # print ('timeseries')
-        # print (self.original_data)
-        # lol47
         timeseries = MultivariateTimeseriesBNN(self.original_data, self.external_feature, self.train_size, self.valid_size, self.sliding_encoder, self.sliding_decoder, self.sliding_inference, self.input_dim)
-        # print ('timeseries')
         self.train_x_encoder, self.valid_x_encoder, self.test_x_encoder, self.train_x_decoder, self.valid_x_decoder, self.test_x_decoder, self.train_y_decoder, self.valid_y_decoder, self.test_y_decoder, self.min_y, self.max_y, self.train_x_inference, self.valid_x_inference, self.test_x_inference, self.train_y_inference, self.valid_y_inference, self.test_y_inference = timeseries.prepare_data()
-    def init_RNN(self, num_units, num_layers, activation):
-        cell = tf.contrib.rnn.LSTMCell(num_units,activation = activation)
-        cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=0.8)
-        cell = tf.nn.rnn_cell.DropoutWrapper(cell, 
-                                 input_keep_prob = 0.9, 
-                                 output_keep_prob = 0.9,
-                                 state_keep_prob = 0.9,
-                                #  variational_recurrent = variational_recurrent,
-                                 dtype=tf.float32)
-        rnn_cells = tf.contrib.rnn.MultiRNNCell([cell for _ in range(num_layers)], state_is_tuple = True)
+    def init_RNN(self, num_units, activation):
+        print(num_units)
+        num_layers = len(num_units)
+        print (num_layers)
+        hidden_layers = []
+        for i in range(num_layers):
+            cell = tf.contrib.rnn.LSTMCell(num_units[i],activation = activation)
+            cell = tf.nn.rnn_cell.DropoutWrapper(cell, 
+                                    input_keep_prob = 0.8, 
+                                    output_keep_prob = 0.8,
+                                    state_keep_prob = 0.8,
+                                    dtype=tf.float32)
+            hidden_layers.append(cell)
+        rnn_cells = tf.contrib.rnn.MultiRNNCell(hidden_layers, state_is_tuple = True)
         return rnn_cells
     def early_stopping(self, array, patience):
         value = array[len(array) - patience - 1]
@@ -111,19 +110,23 @@ class Model:
             optimizer = tf.train.AdamOptimizer(learning_rate = self.learning_rate)
         else:
             optimizer = tf.train.RMSPropOptimizer(learning_rate = self.learning_rate)
-
+        print (self.sliding_encoder)
+        print (len(self.original_data))
         tf.reset_default_graph()
-        encoder = self.init_RNN(self.num_units_LSTM, self.num_layers,activation)
         x1 = tf.placeholder("float",[None, self.sliding_encoder*len(self.original_data)/self.input_dim, self.input_dim])
-        # input_encoder=tf.unstack(x1 ,[None,self.sliding_encoder/self.time_step,self.time_step])
-        outputs_encoder,state_encoder=tf.nn.dynamic_rnn(encoder, x1, dtype="float32")
-        
-        x2 = tf.placeholder("float",[None, self.sliding_decoder*len(self.original_data)/self.input_dim, self.input_dim])
+        x2 = tf.placeholder("float",shape = (None, self.sliding_decoder*len(self.original_data)/self.input_dim, self.input_dim))
         y1 = tf.placeholder("float", [None, self.n_output_encoder_decoder])
         x3 = tf.placeholder("float",[None, 1, int(self.sliding_inference*len(self.external_feature))])
         y2 = tf.placeholder("float", [None, self.n_output_inference])
         # input_decoder=tf.unstack(x2 ,self.sliding_decoder/self.time_step,self.time_step)
-        outputs_decoder,state_decoder=tf.nn.dynamic_rnn(encoder, x2,dtype="float32", initial_state=state_encoder)
+        with tf.variable_scope('encoder'):
+            encoder = self.init_RNN(self.num_units_LSTM,activation)
+            # input_encoder=tf.unstack(x1 ,[None,self.sliding_encoder/self.time_step,self.time_step])
+            outputs_encoder,state_encoder=tf.nn.dynamic_rnn(encoder, x1, dtype="float32")
+            outputs_encoder = tf.identity(outputs_encoder, name='outputs_encoder')
+        with tf.variable_scope('decoder'):
+            decoder = self.init_RNN(self.num_units_LSTM,activation)
+            outputs_decoder,state_decoder=tf.nn.dynamic_rnn(decoder, x2,dtype="float32", initial_state=state_encoder)
         out_weights=tf.Variable(tf.random_normal([int(self.sliding_decoder*len(self.original_data)/self.input_dim), self.n_output_encoder_decoder]))
         out_bias=tf.Variable(tf.random_normal([self.n_output_encoder_decoder]))
         # prediction = outputs_decoder[:,:,-1]
@@ -135,18 +138,18 @@ class Model:
         loss_encoder_decoder = tf.reduce_mean(tf.square(y1-prediction))
         #optimization
         optimizer_encoder_decoder = optimizer.minimize(loss_encoder_decoder)
-        # state = tf.tile(state_encoder[-1].h)
-        # state = tf.shape(x3)[0]
-        state = tf.reshape(state_encoder[-1].h, [tf.shape(x3)[0], 1, self.num_units_LSTM])
+            # state = tf.tile(state_encoder[-1].h)
+            # state = tf.shape(x3)[0]
+        state = tf.reshape(state_encoder[-1].h, [tf.shape(x3)[0], 1, self.num_units_LSTM[-1]])
         input_inference = tf.concat([x3,state],2)
-        input_inference = tf.reshape(input_inference,[tf.shape(x3)[0], self.sliding_inference*len(self.external_feature) + self.num_units_LSTM])
-        # state_encoder = np.reshape(state_encoder[-1].h, [4])
-        # state_encoder = tf.reshape(state_encoder[-1].h,  [None, 1, self.num_units])
-        # input_inference = tf.concat([x3, state_encoder[-1].h],0)
+        input_inference = tf.reshape(input_inference,[tf.shape(x3)[0], self.sliding_inference*len(self.external_feature) + self.num_units_LSTM[-1]])
+            # state_encoder = np.reshape(state_encoder[-1].h, [4])
+            # state_encoder = tf.reshape(state_encoder[-1].h,  [None, 1, self.num_units])
+            # input_inference = tf.concat([x3, state_encoder[-1].h],0)
         hidden_value1 = tf.layers.dense(input_inference, self.num_units_inference, activation=activation)
         hidden_value2 = tf.layers.dense(hidden_value1, 4, activation=activation)
         output_inference = tf.layers.dense(hidden_value1,self.n_output_inference, activation=activation)
-        # loss
+        # # loss
         loss_inference = tf.reduce_mean(tf.square(y2-output_inference))
         #optimization
         optimizer_inference = optimizer.minimize(loss_inference)
@@ -158,7 +161,7 @@ class Model:
         cost_valid_encoder_decoder_set = []
         cost_train_inference_set = []
         cost_valid_inference_set = []
-        # epoch_set=[]
+        epoch_set=[]
         init=tf.global_variables_initializer()
         with tf.Session() as sess:
             saver = tf.train.Saver()
@@ -174,6 +177,12 @@ class Model:
                 avg_cost = 0
                 for i in range(total_batch):
                     batch_xs_encoder,batch_xs_decoder ,batch_ys = self.train_x_encoder[i*self.batch_size:(i+1)*self.batch_size], self.train_x_decoder[i*self.batch_size:(i+1)*self.batch_size],self.train_y_inference[i*self.batch_size:(i+1)*self.batch_size]
+                    # print ("batch_xs_encoder")
+                    # print (batch_xs_encoder)
+                    # print (sess.run(outputs_encoder,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder, y1:batch_ys}))
+                    # print ("state encoder")
+                    # print (sess.run(state_encoder[-1].h,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder, y1:batch_ys}))
+                    # lol
                     sess.run(optimizer_encoder_decoder,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder, y1:batch_ys})
                     avg_cost += sess.run(loss_encoder_decoder,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder,y1: batch_ys})/total_batch
                     if(i == total_batch -1):
@@ -194,7 +203,7 @@ class Model:
             for epoch in range(self.epochs_inference):
                 print ("epoch inference: ", epoch+1)
                 total_batch = int(len(self.train_x_inference)/self.batch_size)
-                print (total_batch)
+                # print (total_batch)
                 # sess.run(updates)
                 avg_cost = 0
                 for i in range(total_batch):
@@ -217,25 +226,26 @@ class Model:
                 
             output_inference_inverse = sess.run(output_inference_inverse, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
             output_inference = sess.run(output_inference, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
-            # print (output_inference)
+            print (output_inference)
             vector_state = sess.run(state_encoder[-1].h,feed_dict={x1:self.test_x_encoder})
-            MAE = sess.run(MAE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
-            RMSE = sess.run(RMSE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
-            print ('MAE: ', MAE)
-            print ('RMSE: ', RMSE)
-            error = [MAE,RMSE]
-            # print (output_inference_inverse)
-            # print (self.test_y_inference)
-            # print (len(output_inference_inverse))
-            # print (len(self.test_y_inference))
+            for i in range(100):
+                MAEi = sess.run(MAE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
+                RMSEi = sess.run(RMSE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
+                print ('MAE: ', MAEi)
+                print ('RMSE: ', RMSEi)
+                error = [MAEi,RMSEi]
+            print (output_inference_inverse)
+            print (self.test_y_inference)
+            print (len(output_inference_inverse))
+            print (len(self.test_y_inference))
             
     
             folder_to_save_result = 'results/mem/5minutes/'
-            history_file = folder_to_save_result + 'history/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.num_layers) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.png'
-            prediction_file = folder_to_save_result + 'prediction/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.num_layers) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
-            vector_state_file = folder_to_save_result + 'vector_representation/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.num_layers) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
+            history_file = folder_to_save_result + 'history/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.png'
+            prediction_file = folder_to_save_result + 'prediction/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
+            vector_state_file = folder_to_save_result + 'vector_representation/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
             
-            save_path = saver.save(sess, 'results/mem/5minutes/model_saved/' +  str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.num_layers) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference) +'-'+str(self.optimizer))
+            save_path = saver.save(sess, 'results/mem/5minutes/model_saved/' +  str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference) +'-'+str(self.optimizer))
             
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
