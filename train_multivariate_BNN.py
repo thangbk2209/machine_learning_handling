@@ -68,7 +68,7 @@ valid_size = int(0.2 * len(cpu))
 
 
 sliding_encoders = [12]
-sliding_decoders = [4]
+sliding_decoders = [2]
 sliding_inferences = [8]
 batch_size_arr = [16]
 num_units_LSTM_arr = [[32,4]]
@@ -84,8 +84,8 @@ activation= [1]
 optimizers = [1]
 
 learning_rate = 0.02
-epochs_encoder_decoder = 2000
-epochs_inference = 2000
+epochs_encoder_decoder = 2
+epochs_inference = 2
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 input_dim = [1]
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     summary = open("results/mem/5minutes/evaluate.csv",'a+')
     summary.write("sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,num_layers,activation,input_dim,num_units_inference,opimizer,MAE,RMSE\n")
  
-    pool = Pool(16)
+    pool = Pool(8)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
