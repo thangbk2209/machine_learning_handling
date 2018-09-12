@@ -227,10 +227,10 @@ class Model:
             # output_inference_inverse = sess.run(output_inference_inverse, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
             # output_inference = sess.run(output_inference, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
             # print (output_inference)
-            # vector_state = sess.run(state_encoder[-1].h,feed_dict={x1:self.test_x_encoder})
+            vector_state = sess.run(state_encoder[-1].h,feed_dict={x1:self.test_x_encoder})
             outputs = []
             MSE = []
-
+            error_model = []
             B = 2
             for i in range(B):
                 print (i)
@@ -239,31 +239,45 @@ class Model:
                 output_inference_inversei = sess.run(output_inference_inverse, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
                 print ('MAE: ', MAEi)
                 print ('RMSE: ', RMSEi)
-                error = [MAEi,RMSEi]
+                errori = [MAEi, RMSEi]
+                error_model.append(errori)
                 outputs.append(output_inference_inversei)
-            # print (output_inference_inverse)
-            # print (self.test_y_inference)
-            # print (len(output_inference_inverse))
-            # print (len(self.test_y_inference))
-            # y_pre = np.average(outputs)
+            output_inference_inverse_valid = sess.run(output_inference_inverse, feed_dict={x1:self.valid_x_encoder,x3:self.valid_x_inference, y2: self.valid_y_inference})
+            err_valid = 0
+            error_model = np.average(error_model,axis = 0)
+            for i in range(len(output_inference_inverse_valid)):
+                test_valid = self.valid_y_inference * (self.max_y[0] - self.min_y[0]) + self.min_y[0]
+                err_valid += np.square(output_inference_inverse_valid[i][0]-test_valid[i])/len(output_inference_inverse_valid)
             y_pre = []
+            error = []
             for k in range(len(self.test_y_inference)):
+                errork = 0
                 outk = 0
                 y_prei = []
+                errori = []
                 for t in range(B):
                     outk += outputs[t][k][0]/B
+                    errork += np.square(self.test_y_inference[k] - outputs[t][k][0])
+                errori.append(errork)
                 y_prei.append(outk)
                 y_pre.append(y_prei)
-            print ("====================")
-            print (outputs[0])
-            print (outputs[1])
-            print(y_pre)
-            # lol
+                error.append(errori)
+            # print ("====================")
+            # print (outputs[0])
+            # print (outputs[1])
+            # print(y_pre)
+            # # lol
+            # print (error)
+            # print(err_valid)
+            uncertainty = []
+            for i in range(len(error)):
+                uncertainty_i = np.sqrt(error[i][0] + err_valid[0])
+                uncertainty.append(uncertainty_i)
             folder_to_save_result = 'results/mem/5minutes/'
             history_file = folder_to_save_result + 'history/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
-            
+            uncertainty_file = folder_to_save_result + 'uncertainty/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
             save_path = saver.save(sess, 'results/mem/5minutes/model_saved/' +  str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference) +'-'+str(self.optimizer))
             
             plt.plot(cost_train_inference_set)
@@ -278,13 +292,13 @@ class Model:
             # plt.savefig('/home/thangnguyen/hust/lab/machine_learning_handling/history/history_mem.png')
             plt.savefig(history_file)
 					
-            predictionDf = pd.DataFrame(np.array(output_inference_inverse))
+            predictionDf = pd.DataFrame(np.array(y_pre))
             # predictionDf.to_csv('/home/thangnguyen/hust/lab/machine_learning_handling/results/result_mem.csv', index=False, header=None)
             predictionDf.to_csv(prediction_file, index=False, header=None)
-            # errorDf = pd.DataFrame(np.array(error))
-            # errorDf.to_csv(error_file, index=False, header=None)
+            uncertaintyDf = pd.DataFrame(np.array(uncertainty))
+            uncertaintyDf.to_csv(uncertainty_file, index=False, header=None)
             # errorDf.to_csv(prediction_file, index=False, header=None)
             vector_stateDf = pd.DataFrame(np.array(vector_state))
             vector_stateDf.to_csv(vector_state_file, index=False, header=None)
             sess.close()
-            return error
+            return error_model
