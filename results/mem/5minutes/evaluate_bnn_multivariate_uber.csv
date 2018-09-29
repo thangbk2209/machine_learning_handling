@@ -1,0 +1,1 @@
+sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,activation,input_dim,num_units_inference,dropout_rate,opimizer,number_out_decoder,MAE,RMSE

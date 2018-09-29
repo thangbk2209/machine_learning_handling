@@ -11,6 +11,7 @@ import pandas as pd
 from tensorflow.contrib import rnn
 # from utils.preprocessing_data import Timeseries
 from model.utils.preprocessing_data_forBNN import MultivariateTimeseriesBNN
+import time
 
 """This class build the model BNN with initial function and train function"""
 class Model:
@@ -20,7 +21,7 @@ class Model:
     activation = None, optimizer = None,
     # n_input = None, n_output = None,
     learning_rate = None, epochs_encoder_decoder = None, epochs_inference = None, 
-    input_dim = None, num_units_inference = None, patience = None):
+    input_dim = None, num_units_inference = None, patience = None, dropout_rate = None):
         self.original_data = original_data
         self.external_feature = external_feature
         self.train_size = train_size
@@ -41,6 +42,7 @@ class Model:
 
         self.num_units_inference = num_units_inference
         self.patience = patience
+        self.dropout_rate = dropout_rate
     def preprocessing_data(self):
         timeseries = MultivariateTimeseriesBNN(self.original_data, self.external_feature, self.train_size, self.valid_size, self.sliding_encoder, self.sliding_decoder, self.sliding_inference, self.input_dim)
         self.train_x_encoder, self.valid_x_encoder, self.test_x_encoder, self.train_x_decoder, self.valid_x_decoder, self.test_x_decoder, self.train_y_decoder, self.valid_y_decoder, self.test_y_decoder, self.min_y, self.max_y, self.train_x_inference, self.valid_x_inference, self.test_x_inference, self.train_y_inference, self.valid_y_inference, self.test_y_inference = timeseries.prepare_data()
@@ -50,15 +52,43 @@ class Model:
         print (num_layers)
         hidden_layers = []
         for i in range(num_layers):
-            cell = tf.contrib.rnn.LSTMCell(num_units[i],activation = activation)
-            cell = tf.nn.rnn_cell.DropoutWrapper(cell, 
-                                    input_keep_prob = 0.8, 
-                                    output_keep_prob = 0.8,
-                                    state_keep_prob = 0.8,
-                                    dtype=tf.float32)
-            hidden_layers.append(cell)
+            if(i==0):
+                cell = tf.contrib.rnn.LSTMCell(num_units[i],activation = activation)
+                cell = tf.nn.rnn_cell.DropoutWrapper(cell, 
+                                        input_keep_prob = 1.0, 
+                                        output_keep_prob = self.dropout_rate,
+                                        state_keep_prob = self.dropout_rate,
+                                        variational_recurrent = True,
+                                        input_size = self.input_dim,
+                                        dtype=tf.float32)
+                hidden_layers.append(cell)
+            else:
+                cell = tf.contrib.rnn.LSTMCell(num_units[i],activation = activation)
+                cell = tf.nn.rnn_cell.DropoutWrapper(cell, 
+                                        input_keep_prob = 1.0, 
+                                        output_keep_prob = self.dropout_rate,
+                                        state_keep_prob = self.dropout_rate,
+                                        variational_recurrent = True,
+                                        input_size = self.num_units_LSTM[i-1],
+                                        dtype=tf.float32)
+                hidden_layers.append(cell)
         rnn_cells = tf.contrib.rnn.MultiRNNCell(hidden_layers, state_is_tuple = True)
         return rnn_cells
+    def mlp(self, input, num_units, activation):
+        num_layers = len(num_units)
+        prev_layer = input
+        for i in range(num_layers):
+            prev_layer = tf.layers.dense(prev_layer,
+                                         num_units[i],
+                                         activation = activation,
+                                         name = 'layer'+str(i))
+            prev_layer = tf.layers.dropout(prev_layer , rate = self.dropout_rate)
+        
+        prediction = tf.layers.dense(inputs=prev_layer,
+                               units=1, 
+                               activation = activation,
+                               name = 'output_layer')
+        return prediction
     def early_stopping(self, array, patience):
         value = array[len(array) - patience - 1]
         arr = array[len(array)-patience:]
@@ -146,9 +176,9 @@ class Model:
             # state_encoder = np.reshape(state_encoder[-1].h, [4])
             # state_encoder = tf.reshape(state_encoder[-1].h,  [None, 1, self.num_units])
             # input_inference = tf.concat([x3, state_encoder[-1].h],0)
-        hidden_value1 = tf.layers.dense(input_inference, self.num_units_inference, activation=activation)
-        hidden_value2 = tf.layers.dense(hidden_value1, 4, activation=activation)
-        output_inference = tf.layers.dense(hidden_value1,self.n_output_inference, activation=activation)
+        # hidden_value1 = tf.layers.dense(input_inference, self.num_units_inference, activation=activation)
+        # hidden_value2 = tf.layers.dense(hidden_value1, 4, activation=activation)
+        output_inference = self.mlp(input_inference, self.num_units_inference, activation)
         # # loss
         loss_inference = tf.reduce_mean(tf.square(y2-output_inference))
         #optimization
@@ -169,6 +199,7 @@ class Model:
             # training encoder_decoder
             print ("start training encoder_decoder")
             for epoch in range(self.epochs_encoder_decoder):
+                start_time = time.time()
                 # Train with each example
                 print ('epoch encoder_decoder: ', epoch+1)
                 total_batch = int(len(self.train_x_encoder)/self.batch_size)
@@ -196,11 +227,13 @@ class Model:
                     if (self.early_stopping(cost_train_encoder_decoder_set, self.patience) == False):
                         print ("early stopping encoder-decoder training")
                         break
+                print ('time for epoch encoder-decoder: ', epoch + 1 , time.time()-start_time)
                 print ("Epoch encoder-decoder finished")
             print ('training encoder-decoder ok!!!')
             # training inferences
             print ('start training inference')
             for epoch in range(self.epochs_inference):
+                start_time = time.time()
                 print ("epoch inference: ", epoch+1)
                 total_batch = int(len(self.train_x_inference)/self.batch_size)
                 # print (total_batch)
@@ -223,7 +256,8 @@ class Model:
                     if (self.early_stopping(cost_train_inference_set , self.patience) == False):
                         print ("early stopping inference training")
                         break
-                
+                print ('time for epoch inference: ', epoch + 1 , time.time()-start_time)
+
             # output_inference_inverse = sess.run(output_inference_inverse, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
             # output_inference = sess.run(output_inference, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
             # print (output_inference)
@@ -233,12 +267,12 @@ class Model:
             error_model = []
             B = 2
             for i in range(B):
-                print (i)
+                # print (i)
                 MAEi = sess.run(MAE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
                 RMSEi = sess.run(RMSE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
                 output_inference_inversei = sess.run(output_inference_inverse, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
-                print ('MAE: ', MAEi)
-                print ('RMSE: ', RMSEi)
+                # print ('MAE: ', MAEi)
+                # print ('RMSE: ', RMSEi)
                 errori = [MAEi, RMSEi]
                 error_model.append(errori)
                 outputs.append(output_inference_inversei)
@@ -273,12 +307,12 @@ class Model:
             for i in range(len(error)):
                 uncertainty_i = np.sqrt(error[i][0] + err_valid[0])
                 uncertainty.append(uncertainty_i)
-            folder_to_save_result = 'results/mem/5minutes/'
+            folder_to_save_result = 'results/mem/5minutes/bnn_multivariate/'
             history_file = folder_to_save_result + 'history/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
             uncertainty_file = folder_to_save_result + 'uncertainty/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
-            save_path = saver.save(sess, 'results/mem/5minutes/model_saved/' +  str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference) +'-'+str(self.optimizer))
+            save_path = saver.save(sess, 'results/mem/5minutes/bnn_multivariate/model_saved/' +  str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference) +'-'+str(self.optimizer))
             
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
