@@ -1,0 +1,5 @@
+18,4,8,8,[16, 4],1,2,[16],0.95,2,1,0.5486016,0.649032
+18,4,8,8,[16, 4],1,2,[16, 4],0.95,2,1,0.96318734,1.0259049
+18,4,8,8,[16, 4],1,2,[16],0.95,2,2,0.5313616,0.63117266
+18,4,8,8,[16, 4],1,2,[16, 4],0.95,2,2,0.85728234,0.93490493
+sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,activation,input_dim,num_units_inference,dropout_rate,opimizer,number_out_decoder,MAE,RMSE

@@ -44,7 +44,7 @@ def train_model(item):
         input_dim = input_dim, num_units_inference = num_units_inference, patience = patience, 
         number_out_decoder = number_out_decoder, dropout_rate = dropout_rate)
     error = model.fit()
-    summary = open("results/mem/5minutes/evaluate_bnn_multivariate_uber.csv",'a+')
+    summary = open("results/cpu/5minutes/evaluate_bnn_multivariate_uber.csv",'a+')
     summary.write(str(sliding_encoder)+','+ str(sliding_decoder)+','+ str(sliding_inference)+','+ 
     str(batch_size)+','+ str(num_units_LSTM)+','+ str(activation)+','+ 
     str(input_dim)+','+ str(num_units_inference)+',' + str(dropout_rate) +','+ str(optimizer)+','+str(number_out_decoder) +','+str(error[0])+','+str(error[1])+'\n')
@@ -62,8 +62,8 @@ cpu = df['cpu_rate'].values.reshape(-1,1)
 mem = df['mem_usage'].values.reshape(-1,1)
 disk_io_time = df['disk_io_time'].values.reshape(-1,1)
 disk_space = df['disk_space'].values.reshape(-1,1)
-dataset_original = [mem,cpu]
-external_feature = [mem]
+dataset_original = [cpu,mem]
+external_feature = [cpu]
 
 # data vn30
 # link = './data/VNM_03092008_10092018.csv'
@@ -95,7 +95,7 @@ sliding_inferences = [8,10]
 batch_size_arr = [8]
 input_dim = [len(dataset_original)]
 num_units_LSTM_arr = [[16,4],[32,4]]
-dropout_rate = [0.95,1.0]
+dropout_rate = [0.95]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
@@ -108,8 +108,8 @@ activation= [1,2]
 optimizers = [2]
 
 learning_rate = 0.005
-epochs_encoder_decoder = 2000
-epochs_inference = 2000
+epochs_encoder_decoder = 1
+epochs_inference = 1
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
@@ -138,7 +138,7 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    summary = open("results/mem/5minutes/evaluate_bnn_multivariate_uber.csv",'a+')
+    summary = open("results/cpu/5minutes/evaluate_bnn_multivariate_uber.csv",'a+')
     summary.write("sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,activation,input_dim,num_units_inference,dropout_rate,opimizer,number_out_decoder,MAE,RMSE\n")
  
     pool = Pool(4)

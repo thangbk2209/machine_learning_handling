@@ -372,12 +372,12 @@ class Model:
             for i in range(len(error)):
                 uncertainty_i = np.sqrt(error[i][0] + err_valid[0])
                 uncertainty.append(uncertainty_i)
-            folder_to_save_result = 'results/mem/5minutes/bnn_multivariate_uber/'
+            folder_to_save_result = 'results/cpu/5minutes/bnn_multivariate_uber/'
             history_file = folder_to_save_result + 'history/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) +'-'+str(self.number_out_decoder) + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) +'-'+str(self.number_out_decoder) + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) +'-'+str(self.number_out_decoder) + '.csv'
             uncertainty_file = folder_to_save_result + 'uncertainty/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) +'-'+str(self.number_out_decoder) + '.csv'
-            save_path = saver.save(sess, 'results/mem/5minutes/bnn_multivariate_uber/model_saved/' +  str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference) +'-'+str(self.optimizer)+'-'+str(self.number_out_decoder))
+            save_path = saver.save(sess, 'results/cpu/5minutes/bnn_multivariate_uber/model_saved/' +  str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference) +'-'+str(self.optimizer)+'-'+str(self.number_out_decoder))
             
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
