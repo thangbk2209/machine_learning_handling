@@ -141,7 +141,7 @@ if __name__ == '__main__':
     summary = open("results/cpu/5minutes/evaluate_bnn_multivariate_uber.csv",'a+')
     summary.write("sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,activation,input_dim,num_units_inference,dropout_rate,opimizer,number_out_decoder,MAE,RMSE\n")
  
-    pool = Pool(4)
+    pool = Pool(8)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
