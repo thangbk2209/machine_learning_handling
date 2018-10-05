@@ -12,6 +12,7 @@ from tensorflow.contrib import rnn
 # from utils.preprocessing_data import Timeseries
 from model.utils.preprocessing_data_forBNN import MultivariateTimeseriesBNN
 import time
+from Graph import *
 
 """This class build the model BNN with initial function and train function"""
 class Model:
@@ -307,13 +308,27 @@ class Model:
             for i in range(len(error)):
                 uncertainty_i = np.sqrt(error[i][0] + err_valid[0])
                 uncertainty.append(uncertainty_i)
-            folder_to_save_result = 'results/mem/5minutes/bnn_multivariate/'
-            history_file = folder_to_save_result + 'history/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.png'
-            prediction_file = folder_to_save_result + 'prediction/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
-            vector_state_file = folder_to_save_result + 'vector_representation/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
-            uncertainty_file = folder_to_save_result + 'uncertainty/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) + '.csv'
-            save_path = saver.save(sess, 'results/mem/5minutes/bnn_multivariate/model_saved/' +  str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference) +'-'+str(self.optimizer))
-            
+            name_LSTM = ""
+            for i in range(len(self.num_units_LSTM)):
+                
+                if (i == len(self.num_units_LSTM) - 1):
+                    name_LSTM += str(self.num_units_LSTM[i])
+                else:
+                    name_LSTM += str(self.num_units_LSTM[i]) +'_'
+            name_inference = ""
+            for i in range(len(self.num_units_inference)):
+                
+                if (i == len(self.num_units_inference) - 1):
+                    name_inference += str(self.num_units_inference[i])
+                else:
+                    name_inference += str(self.num_units_inference[i]) +'_'
+            folder_to_save_result = 'results/multivariate/mem/5minutes/bnn_multivariate/'
+            file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+'-'+str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference+'-'+str(self.dropout_rate)
+            history_file = folder_to_save_result + 'history/' + file_name + '.png'
+            prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
+            vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
+            uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
+            save_path = saver.save(sess, 'results/multivariate/mem/5minutes/bnn_multivariate/model_saved/' +  file_name)
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
             plt.plot(cost_train_encoder_decoder_set)
@@ -323,12 +338,14 @@ class Model:
             plt.xlabel('epoch')
             plt.legend(['train_inference', 'validation_inference','train_encoder_decoder', 'validation_encoder_decoder'], loc='upper left')
             # plt.show()
+            plt.close()
             # plt.savefig('/home/thangnguyen/hust/lab/machine_learning_handling/history/history_mem.png')
             plt.savefig(history_file)
 					
             predictionDf = pd.DataFrame(np.array(y_pre))
             # predictionDf.to_csv('/home/thangnguyen/hust/lab/machine_learning_handling/results/result_mem.csv', index=False, header=None)
             predictionDf.to_csv(prediction_file, index=False, header=None)
+            # draw_predict(self.test_y_inference, predictionDf,file_name + '.png',folder_to_save_result +'plot/')
             uncertaintyDf = pd.DataFrame(np.array(uncertainty))
             uncertaintyDf.to_csv(uncertainty_file, index=False, header=None)
             # errorDf.to_csv(prediction_file, index=False, header=None)

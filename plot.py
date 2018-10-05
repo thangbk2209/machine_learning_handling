@@ -4,6 +4,8 @@ from pandas import read_csv
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+import os
+from Graph import *
 # colnames=['time_stamp','numberOfTaskIndex','numberOfMachineId','meanCPUUsage','CMU','AssignMem','unmapped_cache_usage','page_cache_usage', 'max_mem_usage','mean_diskIO_time','mean_local_disk_space','max_cpu_usage', 'max_disk_io_time', 'cpi', 'mai','sampled_cpu_usage']
 # df = read_csv('/home/nguyen/learnRNNs/international-airline-passengers.csv', usecols=[1], engine='python', skipfooter=3)
 # colnames = ['cpu','mem','disk_io_time','disk_space'] 
@@ -29,9 +31,18 @@ disk_space = df['disk_space'].values.reshape(-1,1)
 		# 	for optimize in optimizerArr: 
 	
 # Real_df = read_csv('%s'%(realFile[0]), header=None, index_col=False, names=colnames, engine='python')
-Pred_df = read_csv('results/cpu/5minutes/bnn_multivariate_uber/prediction/24-4-10-8-[32, 4]-1-2-[16, 4]-2-1.csv', header=None, index_col=False, engine='python')
+arr = os.listdir('results/mem/5minutes/bnn_multivariate_uber/prediction/')
+print (arr)
+# for i, file in enumerate(arr):
+i = 0
+# file = '18-8-8-8-[16, 4]-1-2-[16]-2-2.csv'
+file = '24-4-10-8-[32, 4]-1-2-[16, 4]-2-1.csv'
 
-# error_df = read_csv('%s/error_sliding=%s_batchsize=%s_optimize=%s.csv'%(modelName, sliding, batch_size, optimize), header=None, index_col=False, engine='python')
+print (str(file))
+file_path = 'results/mem/5minutes/bnn_multivariate_uber/prediction/'+ str(file)
+Pred_df = read_csv(file_path, header=None, index_col=False, engine='python')
+file_name = file.split('.')[0]
+# error_df = read_csv('results/cpu/5minutes/bnn_multivariate_uber/prediction/' +file, header=None, index_col=False, engine='python')
 
 RealDataset = mem
 
@@ -40,31 +51,13 @@ test_size = len(RealDataset) - train_size
 print (RealDataset)
 Pred = Pred_df.values
 
-# predictions = []
-# for i in range(100):
-# 	predictions.append(Pred_TestInverse[i])
-# TestPredDataset = Pred_Test_df.values
 # RMSE = error_df.values[0][0]
 # MAE = error_df.values[1][0]
 # print RMSE
 realTestData = RealDataset[train_size:len(RealDataset)]
-# for j in range(train_size+sliding, len(RealDataset),1):
-# for j in range(train_size+sliding, len(RealDataset),1):
-#     realTestData.append(RealDataset[j])
-# print len(realTestData)
 print (len(Pred))
 print (len(realTestData))
-# testScoreMAE = mean_absolute_error(Pred_TestInverse, realTestData)
-# print 'test score', testScoreMAE
-ax = plt.subplot()
-ax.plot(realTestData,label="Actual")
-ax.plot(Pred,label="predictions")
-# ax.plrot(TestPred,label="Test")
-plt.xlabel("TimeStamp")
-plt.ylabel("Mem")
-# ax.text(0,0, '%s_testScore', style='italic',
-#         bbox={'facecolor':'red', 'alpha':0.5, 'pad':8})
-plt.legend()
-# plt.savefig('mem5.png')
-plt.show()
+
+file_path = 'results/mem/5minutes/bnn_multivariate_uber/plot/'
+draw_predict(i,realTestData, Pred,file_name,file_path)
 

@@ -51,7 +51,6 @@ class Model:
         print (self.test_x_encoder[-1])
         print (self.test_x_inference[-1])
         print (self.test_y_inference[-1])
-        lol
         print(num_units)
         num_layers = len(num_units)
         print (num_layers)
@@ -377,12 +376,27 @@ class Model:
             for i in range(len(error)):
                 uncertainty_i = np.sqrt(error[i][0] + err_valid[0])
                 uncertainty.append(uncertainty_i)
-            folder_to_save_result = 'results/cpu/5minutes/bnn_multivariate_uber/'
-            history_file = folder_to_save_result + 'history/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate) + '.png'
-            prediction_file = folder_to_save_result + 'prediction/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) +'-'+str(self.number_out_decoder)+'-'+str(self.dropout_rate) + '.csv'
-            vector_state_file = folder_to_save_result + 'vector_representation/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) +'-'+str(self.number_out_decoder)+'-'+str(self.dropout_rate) + '.csv'
-            uncertainty_file = folder_to_save_result + 'uncertainty/' + str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference)+'-'+str(self.optimizer) +'-'+str(self.number_out_decoder)+'-'+str(self.dropout_rate) + '.csv'
-            save_path = saver.save(sess, 'results/cpu/5minutes/bnn_multivariate_uber/model_saved/' +  str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + str(self.num_units_LSTM) + '-' + str(self.activation) + '-' + str(self.input_dim) + '-' + str(self.num_units_inference) +'-'+str(self.optimizer)+'-'+str(self.number_out_decoder)+'-'+str(self.dropout_rate))
+            name_LSTM = ""
+            for i in range(len(self.num_units_LSTM)):
+                
+                if (i == len(self.num_units_LSTM) - 1):
+                    name_LSTM += str(self.num_units_LSTM[i])
+                else:
+                    name_LSTM += str(self.num_units_LSTM[i]) +'_'
+            name_inference = ""
+            for i in range(len(self.num_units_inference)):
+                
+                if (i == len(self.num_units_inference) - 1):
+                    name_inference += str(self.num_units_inference[i])
+                else:
+                    name_inference += str(self.num_units_inference[i]) +'_'
+            folder_to_save_result = 'results/multivariate/cpu/5minutes/bnn_multivariate_uber/'
+            file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
+            history_file = folder_to_save_result + 'history/' + file_name + '.png'
+            prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
+            vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
+            uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
+            save_path = saver.save(sess, 'results/multivariate/cpu/5minutes/bnn_multivariate_uber/model_saved/' +  file_name)
             
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)

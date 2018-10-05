@@ -42,10 +42,23 @@ def train_model(item):
         epochs_inference = epochs_inference,
         input_dim = input_dim, num_units_inference = num_units_inference, patience = patience, dropout_rate = dropout_rate )
     error = model.fit()
-    summary = open("results/mem/5minutes/evaluate_bnn_multivariate.csv",'a+')
-    summary.write(str(sliding_encoder)+','+ str(sliding_decoder)+','+ str(sliding_inference)+','+ 
-    str(batch_size)+','+ str(num_units_LSTM)+','+ str(activation)+','+ 
-    str(input_dim)+','+ str(num_units_inference) +','+ str(optimizer) +','+str(error[0])+','+str(error[1])+'\n')
+    name_LSTM = ""
+    for i in range(len(num_units_LSTM)):
+        
+        if (i == len(num_units_LSTM) - 1):
+            name_LSTM += str(num_units_LSTM[i])
+        else:
+            name_LSTM += str(num_units_LSTM[i]) +'_'
+    name_inference = ""
+    for i in range(len(num_units_inference)):
+        
+        if (i == len(num_units_inference) - 1):
+            name_inference += str(num_units_inference[i])
+        else:
+            name_inference += str(num_units_inference[i]) +'_'
+    file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+'-'+str(optimizer) + '-' + str(input_dim) + '-' + name_inference+'-'+str(dropout_rate)
+    summary = open("results/multivariate/mem/5minutes/evaluate_bnn_multivariate.csv",'a+')
+    summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
 # producer
 # define constant
@@ -67,16 +80,16 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [28,24]
-sliding_decoders = [4,8]
-sliding_inferences = [8,10]
+sliding_encoders = [24]
+sliding_decoders = [4]
+sliding_inferences = [8]
 batch_size_arr = [8]
-num_units_LSTM_arr = [[16,4],[32,4]]
+num_units_LSTM_arr = [[16,4]]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [1,2]
+activation= [1]
 # 1: momentum
 # 2: adam
 # 3: rmsprop
@@ -84,13 +97,13 @@ activation= [1,2]
 optimizers = [2]
 
 learning_rate = 0.005
-epochs_encoder_decoder = 2000
-epochs_inference = 2000
+epochs_encoder_decoder = 1
+epochs_inference = 1
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 input_dim = [1]
-num_units_inference_arr = [[16,4],[16]]
-dropout_rate = [0.95,1.0]
+num_units_inference_arr = [[16,4]]
+dropout_rate = [0.95]
 n_output_encoder_decoder = 1
 param_grid = {
         'sliding_encoder': sliding_encoders,
@@ -113,8 +126,8 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    summary = open("results/mem/5minutes/evaluate_bnn_multivariate.csv",'a+')
-    summary.write("sliding_encoder,sliding_decoder,sliding_inference,batch_size,num_units_LSTM,num_layers,activation,input_dim,num_units_inference,opimizer,MAE,RMSE\n")
+    summary = open("results/multivariate/mem/5minutes/evaluate_bnn_multivariate.csv",'a+')
+    summary.write("model,MAE,RMSE\n")
  
     pool = Pool(4)
     pool.map(train_model, list(queue.queue))
