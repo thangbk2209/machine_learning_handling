@@ -122,8 +122,8 @@ activation= [1,2]
 optimizers = [2,3]
 
 learning_rate = 0.005
-epochs_encoder_decoder = 1
-epochs_inference = 1
+epochs_encoder_decoder = 1000
+epochs_inference = 1000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
