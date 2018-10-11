@@ -43,7 +43,7 @@ def scaling_data(X):
 def get_iris_data():
     """ Read the iris data set and split them into training and test sets """
     colnames = ['time_stamp','taskIndex','machineId','meanCPUUsage','CMU','AssignMem','unmapped_cache_usage','page_cache_usage','max_mem_usage','mean_diskIO_time','mean_local_disk_space','max_cpu_usage','max_disk_io_time','cpi', 'mai','sampling_portion','agg_type','sampled_cpu_usage']
-    df = read_csv('./data/google_trace_timeseries/data_resource_usage_10Minutes_6176858948.csv', header=None, index_col=False, names=colnames, engine='python')
+    df = read_csv('./data/google_trace_timeseries/data_resource_usage_5Minutes_6176858948.csv', header=None, index_col=False, names=colnames, engine='python')
     cpu = df['meanCPUUsage'].values.reshape(-1,1)
     mem = df['CMU'].values.reshape(-1,1)
 
@@ -74,7 +74,7 @@ def main():
     train_X,  train_y, test_X, test_y, minCPU,maxCPU = get_iris_data()
     train_X = train_X.reshape(train_X.shape[0],train_X.shape[1])
     test_X = test_X.reshape(test_X.shape[0],test_X.shape[1] )
-    learning_rate = 0.001
+    learning_rate = 0.01
     training_epochs = 200
     batch_size = 8
     
@@ -83,14 +83,14 @@ def main():
     n_input = train_X.shape[1]   # Number of input nodes: 4 features and 1 bias
     n_hidden_1 = 3           # Number of hidden nodes
     n_output = train_y.shape[1]
-    print minCPU
-    print maxCPU
-    print train_X[0]
-    print test_X[0]
-    print train_y[0]
-    print len(train_y)   # Number of outcomes (3 iris flowers)
-    print n_input
-    print n_output
+    # print minCPU
+    # print maxCPU
+    # print train_X[0]
+    # print test_X[0]
+    # print train_y[0]
+    # print len(train_y)   # Number of outcomes (3 iris flowers)
+    # print n_input
+    # print n_output
     # Symbols
     x = tf.placeholder("float", [None, n_input])
     y = tf.placeholder("float", [None, n_output])
@@ -114,35 +114,36 @@ def main():
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         sess.run(init)
-        print sess.run(h1)
-        print sess.run(h2)
-        print sess.run(bias_layer_1)
+        # print sess.run(h1)
+        # print sess.run(h2)
+        # print sess.run(bias_layer_1)
         # print sess.run(bias_layer_2)
         for epoch in range(training_epochs):
+            print ('start training')
             # Train with each example
             total_batch = int(len(train_X)/batch_size)
+            avg_cost = 0
             for i in range(total_batch):
                 # sess.run(updates)
-                avg_cost = 0
-                for i in range(total_batch):
-                    batch_xs, batch_ys = train_X[i*batch_size:(i+1)*batch_size], train_y[i*batch_size:(i+1)*batch_size]
-                    sess.run(optimizer, feed_dict={x: batch_xs, y: batch_ys})
-                    avg_cost += sess.run(cost,feed_dict={x: batch_xs,y: batch_ys})/total_batch
+                
+                batch_xs, batch_ys = train_X[i*batch_size:(i+1)*batch_size], train_y[i*batch_size:(i+1)*batch_size]
+                sess.run(optimizer, feed_dict={x: batch_xs, y: batch_ys})
+                avg_cost += sess.run(cost,feed_dict={x: batch_xs,y: batch_ys})/total_batch
             # Display logs per epoch step
             if epoch % display_step == 0:
-                print "Epoch:", '%04d' % (epoch+1),"cost=", "{:.9f}".format(avg_cost)
+                print ("Epoch:", '%04d' % (epoch+1),"cost=", "{:.9f}".format(avg_cost))
                 avg_set.append(avg_cost)
                 epoch_set.append(epoch+1)
-                print "Training phase finished"
+                print ("Training phase finished")
         # plt.plot(epoch_set,avg_set, 'o', label='MLP Training phase')
         # plt.ylabel('cost')
         # plt.xlabel('epoch')
         # plt.legend()
         # plt.show()
-        print 'h1 ',sess.run(h1)
+        print ('h1 ',sess.run(h1))
         # tf.cast(h1, tf.float64)
-        print 'h2 ',sess.run(h2)
-        print 'bias layer 1 ', sess.run(bias_layer_1)
+        print ('h2 ',sess.run(h2))
+        print ('bias layer 1 ', sess.run(bias_layer_1))
         # predictions = []
         # for i in range(len(test_X)):
         layer_1_predictioni = tf.nn.sigmoid(tf.add(tf.matmul(tf.cast(test_X,'float'),h1),bias_layer_1))
@@ -150,10 +151,13 @@ def main():
         # predictions = scaler.inverse_transform(predictions)
         predictions = predictions * (maxCPU - minCPU) + minCPU
         error = tf.reduce_sum(tf.abs(tf.subtract(predictions,test_y)))/len(test_y)
-        print 'predictions', sess.run(predictions)
-        print 'error', sess.run(error)
-        predictionDf = pd.DataFrame(np.array(predictions))
-		predictionDf.to_csv('results/ANN/cpu/mutlti_2_metrics/testPredictInverse_sliding=1_batchsize=8.csv', index=False, header=None)
+        # print ('predictions', sess.run(predictions))
+        print ('error', sess.run(error))
+        res = []
+        for i in range(len(predictions)):
+            res.append([predictions[i]])
+        predictionDf = pd.DataFrame(np.array(res))
+        predictionDf.to_csv('testANN.csv', index=False, header=None)
         sess.close()
 
 if __name__ == '__main__':

@@ -22,7 +22,7 @@ class Fuzzification():
         max_value = max(timeseries)[0]
         # print (min_value)
         # print (round(max_value))
-        u = [round(min_value,2), round(max_value,2)]
+        u = [round(min_value), round(max_value)]
         print (u)
         
         self.number_of_interval = (u[1] - u[0]) / self.interval

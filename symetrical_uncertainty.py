@@ -76,8 +76,9 @@ disk_space = df['disk_space'].values.reshape(-1,1)
 interval_cpu = 0.001
 fuzzy_engine_cpu = Fuzzification(interval_cpu)
 fuzzied_cpu = fuzzy_engine_cpu.fuzzify(cpu)
+print (fuzzied_cpu)
 
-interval_mem = 0.00005
+interval_mem = 0.00001
 fuzzy_engine_mem = Fuzzification(interval_mem)
 fuzzied_mem = fuzzy_engine_mem.fuzzify(mem)
 
@@ -88,18 +89,38 @@ fuzzied_disk_io = fuzzy_engine_mem.fuzzify(disk_io_time)
 interval_disk_space = 0.0000001
 fuzzy_engine_disk_space = Fuzzification(interval_disk_space)
 fuzzied_disk_space = fuzzy_engine_mem.fuzzify(disk_space)
+
+# fuzzied_cpu_df = []
+# fuzzied_mem_df = []
+# fuzzied_disk_io_df = []
+# fuzzied_disk_space_df = []
+fuzzied_df = []
+for i in range(len(fuzzied_cpu)):
+	fuzzied_dfi = []
+	fuzzied_dfi.append(fuzzied_cpu[i])
+	fuzzied_dfi.append(fuzzied_mem[i])
+	fuzzied_dfi.append(fuzzied_disk_io[i])
+	fuzzied_dfi.append(fuzzied_disk_space[i])
+	fuzzied_df.append(fuzzied_dfi)
+# fuzzied_df.append(fuzzied_cpu_df)
+# fuzzied_df.append(fuzzied_mem_df)
+# fuzzied_df.append(fuzzied_disk_io_df)
+# fuzzied_df.append(fuzzied_disk_space_df)
+fuzzied_df = np.asarray(fuzzied_df)
+fuzzied_df = pd.DataFrame(np.array(fuzzied_df))
+fuzzied_df.to_csv('data/fuzzied/5minutes.csv', index=False, header=None)
 su=[]
 # entropyGGTrace = []
 # # numberOfEntropy = 0
-print (infomation_gain(fuzzied_cpu,fuzzied_mem))
+# print (infomation_gain(fuzzied_cpu,fuzzied_mem))
 
-su = symmetrical_uncertainly(fuzzied_cpu, fuzzied_mem)
-print (su)
-print (symmetrical_uncertainly(fuzzied_cpu,fuzzied_disk_io))
-print (symmetrical_uncertainly(fuzzied_cpu,fuzzied_disk_space))
-print (symmetrical_uncertainly(fuzzied_mem,fuzzied_disk_io))
-print (symmetrical_uncertainly(fuzzied_mem,fuzzied_disk_space))
-print (symmetrical_uncertainly(fuzzied_disk_io,fuzzied_disk_space))
+# su = symmetrical_uncertainly(fuzzied_cpu, fuzzied_mem)
+# print (su)
+# print (symmetrical_uncertainly(fuzzied_cpu,fuzzied_disk_io))
+# print (symmetrical_uncertainly(fuzzied_cpu,fuzzied_disk_space))
+# print (symmetrical_uncertainly(fuzzied_mem,fuzzied_disk_io))
+# print (symmetrical_uncertainly(fuzzied_mem,fuzzied_disk_space))
+# print (symmetrical_uncertainly(fuzzied_disk_io,fuzzied_disk_space))
 # for i in range(len(colnames)):
 # 	print i
 # 	sui=[]
