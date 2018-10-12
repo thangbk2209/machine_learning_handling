@@ -135,7 +135,7 @@ epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
-num_units_inference_arr = [[64]]
+num_units_inference_arr = [[64],[32]]
 number_out_decoder = [2]
 n_output_encoder_decoder = 1
 param_grid = {
