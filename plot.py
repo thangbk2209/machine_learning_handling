@@ -36,7 +36,7 @@ disk_space = df['disk_space'].values.reshape(-1,1)
 # for i, file in enumerate(arr):
 i = 0
 # file = '18-8-8-8-[16, 4]-1-2-[16]-2-2.csv'
-file = '18-4-4-8-16_4-1-2-2-64-2-0.95.csv'
+file = '18-4-4-4-8_4-1-2-2-32-2-0.95.csv'
 
 print (str(file))
 file_path = 'testANN.csv'
@@ -55,7 +55,7 @@ Pred = Pred_df.values
 # RMSE = error_df.values[0][0]
 # MAE = error_df.values[1][0]
 # print RMSE
-realTestData = RealDataset[train_size-1:len(RealDataset)-1]
+realTestData = RealDataset[train_size:len(RealDataset)]
 print (len(Pred))
 print (len(realTestData))
 file_path = '/'

@@ -84,8 +84,8 @@ fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
 fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
 fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
 dataset_original = [fuzzied_cpu,fuzzied_mem]
-prediction_data = [cpu]
-external_feature = [cpu]
+prediction_data = [mem]
+external_feature = [mem]
 
 # data vn30
 # link = './data/VNM_03092008_10092018.csv'
