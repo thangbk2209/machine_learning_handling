@@ -83,7 +83,7 @@ fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
 fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
 fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
 fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
-dataset_original = [fuzzied_cpu,fuzzied_mem]
+dataset_original = [fuzzied_mem,fuzzied_cpu]
 prediction_data = [mem]
 external_feature = [mem]
 
@@ -127,7 +127,7 @@ activation= [1]
 # 2: adam
 # 3: rmsprop
 
-optimizers = [2,3]
+optimizers = [2]
 
 learning_rate = 0.005
 epochs_encoder_decoder = 2000
@@ -136,7 +136,7 @@ patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
 num_units_inference_arr = [[64],[32]]
-number_out_decoder = [2]
+number_out_decoder = [1,2]
 n_output_encoder_decoder = 1
 param_grid = {
         'sliding_encoder': sliding_encoders,
