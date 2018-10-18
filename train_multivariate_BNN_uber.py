@@ -60,7 +60,7 @@ def train_model(item):
             name_inference += str(num_units_inference[i]) +'_'
     file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+ '-' + str(optimizer) + '-' + str(input_dim) + '-' + name_inference +'-'+str(number_out_decoder) +'-'+str(dropout_rate)
             
-    summary = open("results/multivariate/cpu/5minutes/evaluate_bnn_multivariate_uber.csv",'a+')
+    summary = open("results/multivariate/mem/5minutes/evaluate_bnn_multivariate_uber_ver2.csv",'a+')
     summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
     # except:
@@ -114,16 +114,16 @@ dropout_rate = [0.95]
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [1,2]
+activation= [1]
 # 1: momentum
 # 2: adam
 # 3: rmsprop
 
-optimizers = [2,3]
+optimizers = [2]
 
-learning_rate = 0.005
-epochs_encoder_decoder = 1000
-epochs_inference = 1000
+learning_rate = 0.01
+epochs_encoder_decoder = 2000
+epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
@@ -152,7 +152,7 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    summary = open("results/multivariate/cpu/5minutes/evaluate_bnn_multivariate_uber.csv",'a+')
+    summary = open("results/multivariate/mem/5minutes/evaluate_bnn_multivariate_uber_ver2.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
     pool = Pool(8)

@@ -86,7 +86,8 @@ class Model:
                                          num_units[i],
                                          activation = activation,
                                          name = 'layer'+str(i))
-            prev_layer = tf.layers.dropout(prev_layer , rate = self.dropout_rate)
+            drop_rate = 1 - self.dropout_rate
+            prev_layer = tf.layers.dropout(prev_layer , rate = drop_rate)
         
         prediction = tf.layers.dense(inputs=prev_layer,
                                units=1, 
@@ -334,7 +335,7 @@ class Model:
             outputs = []
             MSE = []
             error_model = []
-            B = 2
+            B = 50
             for i in range(B):
                 print (i)
                 MAEi = sess.run(MAE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
@@ -390,13 +391,13 @@ class Model:
                     name_inference += str(self.num_units_inference[i])
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
-            folder_to_save_result = 'results/multivariate/cpu/5minutes/bnn_multivariate_uber/'
+            folder_to_save_result = 'results/multivariate/mem/5minutes/bnn_multivariate_uber_ver2/'
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
             uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
-            save_path = saver.save(sess, 'results/multivariate/cpu/5minutes/bnn_multivariate_uber/model_saved/' +  file_name)
+            save_path = saver.save(sess, 'results/multivariate/mem/5minutes/bnn_multivariate_uber_ver2/model_saved/' +  file_name)
             
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
@@ -409,7 +410,7 @@ class Model:
             # plt.show()
             # plt.savefig('/home/thangnguyen/hust/lab/machine_learning_handling/history/history_mem.png')
             plt.savefig(history_file)
-					
+            plt.close()
             predictionDf = pd.DataFrame(np.array(y_pre))
             # predictionDf.to_csv('/home/thangnguyen/hust/lab/machine_learning_handling/results/result_mem.csv', index=False, header=None)
             predictionDf.to_csv(prediction_file, index=False, header=None)
