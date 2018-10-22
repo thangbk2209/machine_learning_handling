@@ -36,16 +36,16 @@ disk_space = df['disk_space'].values.reshape(-1,1)
 # for i, file in enumerate(arr):
 i = 0
 # file = '18-8-8-8-[16, 4]-1-2-[16]-2-2.csv'
-file = '18-4-4-4-8_4-1-2-2-32-2-0.95.csv'
+file = '24-2-10-8-32_4-1-2-2-64-1-0.95.csv'
 
 print (str(file))
 file_path = 'testANN.csv'
-file_path = 'results/fuzzy/multivariate/cpu/5minutes/bnn_multivariate_uber/prediction/'+ str(file)
+file_path = 'results/multivariate/mem/5minutes/bnn_multivariate_uber_ver2/prediction/'+ str(file)
 Pred_df = read_csv(file_path, header=None, index_col=False, engine='python')
 file_name = file.split('.')[0]
 # error_df = read_csv('results/cpu/5minutes/bnn_multivariate_uber/prediction/' +file, header=None, index_col=False, engine='python')
 
-RealDataset = cpu
+RealDataset = mem
 
 train_size = int(len(RealDataset)*0.8)
 test_size = len(RealDataset) - train_size

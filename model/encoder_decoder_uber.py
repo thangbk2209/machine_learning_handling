@@ -10,11 +10,11 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 from tensorflow.contrib import rnn
 # from utils.preprocessing_data import Timeseries
-from model.utils.preprocessing_data_forBNN import FuzzyMultivariateTimeseriesBNNUber
+from model.utils.preprocessing_data_forBNN import MultivariateTimeseriesBNNUber
 import time
 """This class build the model BNN with initial function and train function"""
 class Model:
-    def __init__(self, original_data = None, prediction_data = None, external_feature = None, train_size = None, valid_size = None, 
+    def __init__(self, original_data = None, external_feature = None, train_size = None, valid_size = None, 
     sliding_encoder = None, sliding_decoder = None, sliding_inference = None,
     batch_size = None, num_units_LSTM = None, num_layers = None,
     activation = None, optimizer = None,
@@ -22,7 +22,6 @@ class Model:
     learning_rate = None, epochs_encoder_decoder = None, epochs_inference = None, 
     input_dim = None, num_units_inference = None, patience = None, number_out_decoder = 1, dropout_rate = 0.8):
         self.original_data = original_data
-        self.prediction_data = prediction_data
         self.external_feature = external_feature
         self.train_size = train_size
         self.valid_size = valid_size
@@ -45,17 +44,13 @@ class Model:
         self.number_out_decoder = number_out_decoder
         self.dropout_rate = dropout_rate
     def preprocessing_data(self):
-        timeseries = FuzzyMultivariateTimeseriesBNNUber(self.original_data, self.prediction_data, self.external_feature, self.train_size, self.valid_size, self.sliding_encoder, self.sliding_decoder, self.sliding_inference, self.input_dim,self.number_out_decoder)
+        timeseries = MultivariateTimeseriesBNNUber(self.original_data, self.external_feature, self.train_size, self.valid_size, self.sliding_encoder, self.sliding_decoder, self.sliding_inference, self.input_dim,self.number_out_decoder)
         self.train_x_encoder, self.valid_x_encoder, self.test_x_encoder, self.train_x_decoder, self.valid_x_decoder, self.test_x_decoder, self.train_y_decoder, self.valid_y_decoder, self.test_y_decoder, self.min_y, self.max_y, self.train_x_inference, self.valid_x_inference, self.test_x_inference, self.train_y_inference, self.valid_y_inference, self.test_y_inference = timeseries.prepare_data()
     def init_RNN(self, num_units, activation):
         print (len(self.test_y_inference))
         print (self.test_x_encoder[-1])
         print (self.test_x_inference[-1])
         print (self.test_y_inference[-1])
-        print (self.train_x_encoder[0])
-        print (self.train_x_inference[0])
-        print (self.train_y_inference[0])
-        # lol
         print(num_units)
         num_layers = len(num_units)
         print (num_layers)
@@ -91,7 +86,7 @@ class Model:
                                          num_units[i],
                                          activation = activation,
                                          name = 'layer'+str(i))
-            drop_rate = 1-self.dropout_rate
+            drop_rate = 1 - self.dropout_rate
             prev_layer = tf.layers.dropout(prev_layer , rate = drop_rate)
         
         prediction = tf.layers.dense(inputs=prev_layer,
@@ -346,7 +341,8 @@ class Model:
                 MAEi = sess.run(MAE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
                 RMSEi = sess.run(RMSE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
                 output_inference_inversei = sess.run(output_inference_inverse, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
-                print ('MAE - RMSE: ', MAEi, RMSEi)
+                # print ('MAE: ', MAEi)
+                # print ('RMSE: ', RMSEi)
                 errori = [MAEi, RMSEi]
                 error_model.append(errori)
                 outputs.append(output_inference_inversei)
@@ -395,13 +391,13 @@ class Model:
                     name_inference += str(self.num_units_inference[i])
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
-            folder_to_save_result = 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber_ver3/'
+            folder_to_save_result = 'results/multivariate/mem/5minutes/bnn_multivariate_uber_ver2/'
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
             uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
-            save_path = saver.save(sess, 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber_ver3/model_saved/' +  file_name)
+            save_path = saver.save(sess, 'results/multivariate/mem/5minutes/bnn_multivariate_uber_ver2/model_saved/' +  file_name)
             
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
