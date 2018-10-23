@@ -104,7 +104,7 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [30,36]
+sliding_encoders = [18,24]
 sliding_decoders = [2,4]
 sliding_inferences = [10]
 batch_size_arr = [8]
