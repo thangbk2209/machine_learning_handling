@@ -209,9 +209,9 @@ class Model:
                 name_LSTM += str(self.num_units_LSTM[i])
             else:
                 name_LSTM += str(self.num_units_LSTM[i]) +'_'
-        folder_to_save_result = 'results/fuzzy/encoder_decoder/5minutes/mem/bnn_multivariate_uber/'
+        folder_to_save_result = 'results/fuzzy/encoder_decoder/5minutes/cpu/bnn_multivariate_uber/'
         file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
-        save_path = 'results/fuzzy/encoder_decoder/5minutes/mem/bnn_multivariate_uber/model_saved/' +  file_name
+        save_path = 'results/fuzzy/encoder_decoder/5minutes/cpu/bnn_multivariate_uber/model_saved/' +  file_name
             
         with tf.Session() as sess:
             saver = tf.train.Saver()
