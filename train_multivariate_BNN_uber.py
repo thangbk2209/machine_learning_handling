@@ -15,7 +15,7 @@ import pandas as pd
 from tensorflow.contrib import rnn
 # from model.utils.preprocessing_data import Timeseries
 # preprocessing_data_forBNN
-from model.encoder_decoder import Model as encoder_decoder
+# from model.encoder_decoder import Model as encoder_decoder
 from model.BNN_multivariate_uber import Model as BNN_multivariate
 import traceback
    
@@ -60,7 +60,7 @@ def train_model(item):
             name_inference += str(num_units_inference[i]) +'_'
     file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+ '-' + str(optimizer) + '-' + str(input_dim) + '-' + name_inference +'-'+str(number_out_decoder) +'-'+str(dropout_rate)
             
-    summary = open("results/multivariate/mem/5minutes/evaluate_bnn_multivariate_uber_ver2.csv",'a+')
+    summary = open("results/multivariate/mem/5minutes/evaluate_bnn_multivariate_uber_ver3.csv",'a+')
     summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
     # except:
@@ -103,7 +103,7 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [18,24]
+sliding_encoders = [30]
 sliding_decoders = [2,4]
 sliding_inferences = [8,10]
 batch_size_arr = [8]
@@ -121,13 +121,13 @@ activation= [1]
 
 optimizers = [2]
 
-learning_rate = 0.01
+learning_rate = 0.005
 epochs_encoder_decoder = 2000
 epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
-num_units_inference_arr = [[64],[128]]
+num_units_inference_arr = [[16,4]]
 number_out_decoder = [1,2]
 n_output_encoder_decoder = 1
 param_grid = {
@@ -152,7 +152,7 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    summary = open("results/multivariate/mem/5minutes/evaluate_bnn_multivariate_uber_ver2.csv",'a+')
+    summary = open("results/multivariate/mem/5minutes/evaluate_bnn_multivariate_uber_ver3.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
     pool = Pool(8)
