@@ -115,7 +115,7 @@ dropout_rate = [0.95]
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [1]
+activation= [1,3]
 # 1: momentum
 # 2: adam
 # 3: rmsprop
@@ -123,8 +123,8 @@ activation= [1]
 optimizers = [2,3]
 
 learning_rate = 0.005
-epochs_encoder_decoder = 1
-epochs_inference = 1
+epochs_encoder_decoder = 2000
+epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
