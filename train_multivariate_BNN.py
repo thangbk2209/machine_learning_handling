@@ -80,9 +80,9 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [24]
-sliding_decoders = [4]
-sliding_inferences = [8]
+sliding_encoders = [12]
+sliding_decoders = [2,4]
+sliding_inferences = [4]
 batch_size_arr = [8]
 num_units_LSTM_arr = [[16,4]]
 # activation for inference and decoder layer : - 1 is sigmoid

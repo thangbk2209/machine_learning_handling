@@ -1,4 +1,6 @@
 import tensorflow as tf
+
+import tensorflow as tf
 import numpy as np
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
@@ -112,25 +114,23 @@ class Model:
             return True
     def fit(self):
         self.preprocessing_data()
-        print ("================check preprocessing data ok==================")
-        print ('self.train_x_encoder')
-        print (self.train_x_encoder.shape)
-        print (self.test_x_encoder.shape)
-        print ('self.train_x_decoder')
-        print (self.train_x_decoder[0])
-        print ('self.train_y_decoder')
-        print (self.train_y_decoder[0])
-        print (self.train_y_decoder.shape)
-        print ('self.train_x_inference')
-        print (self.train_x_inference[0])
-        print ('self.train_y_inference')
-        print (self.train_y_inference[0])
-        print ('test y')
-        print (self.test_y_inference)
-        print (self.min_y)
-        print (self.max_y)
-        print (len(self.train_x_encoder))
-        # lol111
+        # print ("================check preprocessing data ok==================")
+        # print ('self.train_x_encoder')
+        # print (self.train_x_encoder[0])
+        # print ('self.train_x_decoder')
+        # print (self.train_x_decoder[0])
+        # print ('self.train_y_decoder')
+        # print (self.train_y_decoder[0])
+        # print (self.train_y_decoder.shape)
+        # print ('self.train_x_inference')
+        # print (self.train_x_inference[0])
+        # print ('self.train_y_inference')
+        # print (self.train_y_inference[0])
+        # print ('test y')
+        # print (self.test_y_inference)
+        # print (self.min_y)
+        # print (self.max_y)
+        # print (len(self.train_x_encoder))
         self.train_x_encoder = np.array(self.train_x_encoder)
         self.train_x_decoder = np.array(self.train_x_decoder)
         self.test_x_encoder = np.array(self.test_x_encoder)
@@ -144,6 +144,30 @@ class Model:
         self.n_input_decoder = self.train_x_decoder.shape[1]
         self.n_output_inference = self.train_y_inference.shape[1]
         self.n_output_encoder_decoder = self.train_y_decoder.shape[1]
+        name_LSTM = ""
+        for i in range(len(self.num_units_LSTM)):   
+            if (i == len(self.num_units_LSTM) - 1):
+                name_LSTM += str(self.num_units_LSTM[i])
+            else:
+                name_LSTM += str(self.num_units_LSTM[i]) +'_'
+        file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)    
+        save_path = 'results/fuzzy/encoder_decoder/5minutes/cpu/bnn_multivariate_uber/model_saved/' +  file_name
+        # tf.reset_default_graph()
+        graph = tf.get_default_graph()
+        with tf.Session() as sess:
+            tf.saved_model.loader.load(sess, ["tag"] ,export_dir = save_path)
+            # Access and create placeholders variables and
+            
+            print ('all name node in graph')
+            # [print (n.name) for n in graph.as_graph_def().node]
+            print (sess.graph.get_operations())
+            x1 = graph.get_tensor_by_name("x1:0")
+            state = graph.get_tensor_by_name("encoder:0") 
+            # prediction = graph.get_tensor_by_name("outputs/Softmax:0")
+            pred = (sess.run(state,{x1:self.train_x_encoder})) 
+        print (pred)
+        lol
+        
         if(self.activation == 1):
             activation = tf.nn.sigmoid
         elif(self.activation == 2):
@@ -161,66 +185,31 @@ class Model:
             optimizer = tf.train.RMSPropOptimizer(learning_rate = self.learning_rate)
         print (self.sliding_encoder)
         print (len(self.original_data))
-        tf.reset_default_graph()
-        x1 = tf.placeholder("float",[None, self.sliding_encoder*len(self.original_data)/self.input_dim, self.input_dim],name='x1')
-        x2 = tf.placeholder("float",shape = (None, self.sliding_decoder*len(self.original_data)/self.input_dim, self.input_dim),name='x2')
-        if(self.number_out_decoder == 1):
-            y1 = tf.placeholder("float", [None, self.sliding_decoder])
-            with tf.variable_scope('encoder'):
-                
-                encoder = self.init_RNN(self.num_units_LSTM,activation)
-                # input_encoder=tf.unstack(x1 ,[None,self.sliding_encoder/self.time_step,self.time_step])
-                outputs_encoder, new_state_encoder=tf.nn.dynamic_rnn(encoder, x1, dtype="float32")
-                outputs_encoder = tf.identity(outputs_encoder, name='outputs_encoder')
-                state_encoder = tf.identity(new_state_encoder[-1].h, name='state_encoder')
-            with tf.variable_scope('decoder'):
-                decoder = self.init_RNN(self.num_units_LSTM,activation)
-                outputs_decoder, new_state_decoder=tf.nn.dynamic_rnn(decoder, x2,dtype="float32", initial_state=new_state_encoder)
-            
-            prediction = outputs_decoder[:,:,-1]
-            loss_encoder_decoder = tf.reduce_mean(tf.square(y1-prediction))
-            optimizer_encoder_decoder = optimizer.minimize(loss_encoder_decoder)
-        else:
-            y11 = tf.placeholder("float", [None, self.sliding_decoder])
-            y12 = tf.placeholder("float", [None, self.sliding_decoder])
-            with tf.variable_scope('encoder'):
-                encoder = self.init_RNN(self.num_units_LSTM,activation)
-                # input_encoder=tf.unstack(x1 ,[None,self.sliding_encoder/self.time_step,self.time_step])
-                outputs_encoder,new_state_encoder=tf.nn.dynamic_rnn(encoder, x1, dtype="float32")
-                # with tf.control_dependencies([state.assign(state_encoder)]):
-                # outputs_encoder = tf.identity(outputs_encoder, name='outputs_encoder')
-            with tf.variable_scope('decoder1'):
-                decoder = self.init_RNN(self.num_units_LSTM,activation)
-                outputs_decoder1,new_state_decoder1=tf.nn.dynamic_rnn(decoder, x2,dtype="float32", initial_state = new_state_encoder)
-            with tf.variable_scope('decoder2'):
-                decoder = self.init_RNN(self.num_units_LSTM,activation)
-                outputs_decoder2,new_state_decoder2=tf.nn.dynamic_rnn(decoder, x2,dtype="float32", initial_state = new_state_encoder)
-            prediction1 = outputs_decoder1[:,:,-1]
-            prediction2 = outputs_decoder2[:,:,-1]
-            loss_encoder_decoder = tf.reduce_mean(tf.square(y11-prediction1) + tf.square(y12-prediction2))
-            optimizer_encoder_decoder = optimizer.minimize(loss_encoder_decoder)
+        x3 = tf.placeholder("float",[None, 1, int(self.sliding_inference*len(self.external_feature))])
+        y2 = tf.placeholder("float", [None, self.n_output_inference])
+        state = tf.reshape(new_state_encoder[-1].h, [tf.shape(x3)[0], 1, self.num_units_LSTM[-1]])
+        input_inference = tf.concat([x3,state],2)
+        input_inference = tf.reshape(input_inference,[tf.shape(x3)[0], self.sliding_inference*len(self.external_feature) + self.num_units_LSTM[-1]])
+        output_inference = self.mlp(input_inference, self.num_units_inference, activation)
+        loss_inference = tf.reduce_mean(tf.square(y2-output_inference))
+        #optimization
+        optimizer_inference = optimizer.minimize(loss_inference)
+        output_inference_inverse = output_inference * (self.max_y[0] - self.min_y[0]) + self.min_y[0]
+        y2_inverse = y2
+        MAE = tf.reduce_mean(tf.abs(tf.subtract(output_inference_inverse,y2_inverse)) )
+        RMSE = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(output_inference_inverse,y2_inverse))))
         cost_train_encoder_decoder_set = []
         cost_valid_encoder_decoder_set = []
-        # cost_train_inference_set = []
-        # cost_valid_inference_set = []
+        cost_train_inference_set = []
+        cost_valid_inference_set = []
         epoch_set=[]
         init=tf.global_variables_initializer()
-        name_LSTM = ""
-        for i in range(len(self.num_units_LSTM)):   
-            if (i == len(self.num_units_LSTM) - 1):
-                name_LSTM += str(self.num_units_LSTM[i])
-            else:
-                name_LSTM += str(self.num_units_LSTM[i]) +'_'
-        folder_to_save_result = 'results/fuzzy/encoder_decoder/5minutes/cpu/bnn_multivariate_uber/'
-        file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
-        save_path = 'results/fuzzy/encoder_decoder/5minutes/cpu/bnn_multivariate_uber/model_saved/' +  file_name
-            
+        
         with tf.Session() as sess:
             saver = tf.train.Saver()
             sess.run(init)
             # training encoder_decoder
             print ("start training encoder_decoder")
-            builder = tf.saved_model.builder.SavedModelBuilder(save_path)
             if (self.number_out_decoder == 1):
                 for epoch in range(self.epochs_encoder_decoder):
                     start_time = time.time()
@@ -251,12 +240,6 @@ class Model:
                     print ("Epoch encoder-decoder finished")
                     print ('time for epoch encoder-decoder: ', epoch + 1 , time.time()-start_time)
                 print ('training encoder-decoder ok!!!')
-                builder.add_meta_graph_and_variables(sess, ["tag"], signature_def_map= {
-                "model": tf.saved_model.signature_def_utils.predict_signature_def(
-                    inputs= {"x1": x1,"x2":x2},
-                    outputs= {"y1": y1,"state_encoder": state_encoder})
-                })
-                builder.save()
             else:
                 for epoch in range(self.epochs_encoder_decoder):
                     start_time = time.time()
@@ -286,37 +269,122 @@ class Model:
                     print ('time for epoch encoder-decoder: ', epoch + 1 , time.time()-start_time)
 
                 print ('training encoder-decoder ok!!!')
-                builder.add_meta_graph_and_variables(sess, ["tag"], signature_def_map= {
-                "model": tf.saved_model.signature_def_utils.predict_signature_def(
-                    inputs= {"x1": x1,"x2":x2},
-                    outputs= {"y11": y11,"y12": y12,"state": new_state_encoder[-1].h})
-                })
-                builder.save()
-            vector_state_test = sess.run(new_state_encoder[-1].h,feed_dict={x1:self.test_x_encoder})
-            vector_state_train = sess.run(new_state_encoder[-1].h,feed_dict={x1:self.train_x_encoder})
-            vector_state_valid = sess.run(new_state_encoder[-1].h,feed_dict={x1:self.valid_x_encoder})
-            
-            print (vector_state_test.shape)
-            print (vector_state_train.shape)
-            print (vector_state_train[0])
-            print (vector_state_test[0])
-            vector_state = np.concatenate((vector_state_train,vector_state_valid,vector_state_test))
+            # training inferences
+            print ('start training inference')
+            for epoch in range(self.epochs_inference):
+                start_time = time.time()
+                print ("epoch inference: ", epoch+1)
+                total_batch = int(len(self.train_x_inference)/self.batch_size)
+                # print (total_batch)
+                # sess.run(updates)
+                avg_cost = 0
+                for i in range(total_batch):
+                    batch_xs_encoder,batch_xs_inference ,batch_ys = self.train_x_encoder[i*self.batch_size:(i+1)*self.batch_size], self.train_x_inference[i*self.batch_size:(i+1)*self.batch_size],self.train_y_inference[i*self.batch_size:(i+1)*self.batch_size]
+                    # print ('input_inference')
+                    s_e = sess.run(new_state_encoder,feed_dict={x1: batch_xs_encoder})
+                    sess.run(optimizer_inference,feed_dict={x1: batch_xs_encoder,x3: batch_xs_inference, y2:batch_ys})
+                    avg_cost += sess.run(loss_inference,feed_dict={x1: batch_xs_encoder,x3: batch_xs_inference,y2: batch_ys})/total_batch
+                    # if(i == total_batch -1):
+                    #     print (sess.run(state_encoder,feed_dict={x1: batch_xs_encoder}))
+                print ("Epoch:", '%04d' % (epoch+1),"cost=", "{:.9f}".format(avg_cost))
+                cost_train_inference_set.append(avg_cost)
+                # epoch_set.append(epoch+1)
+                val_cost = sess.run(loss_inference, feed_dict={x1:self.valid_x_encoder,x3:self.valid_x_inference, y2: self.valid_y_inference})
+                cost_valid_inference_set.append(val_cost)
+                if (epoch > self.patience):
+                    if (self.early_stopping(cost_train_inference_set , self.patience) == False):
+                        print ("early stopping inference training")
+                        break
+                print ('time for epoch inference: ', epoch + 1 , time.time()-start_time)
+            # output_inference_inverse = sess.run(output_inference_inverse, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
+            # output_inference = sess.run(output_inference, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
+            # print (output_inference)
+            vector_state = sess.run(new_state_encoder[-1].h,feed_dict={x1:self.test_x_encoder})
+            outputs = []
+            MSE = []
+            error_model = []
+            B = 50
+            for i in range(B):
+                print (i)
+                MAEi = sess.run(MAE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
+                RMSEi = sess.run(RMSE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
+                output_inference_inversei = sess.run(output_inference_inverse, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
+                print ('MAE - RMSE: ', MAEi, RMSEi)
+                errori = [MAEi, RMSEi]
+                error_model.append(errori)
+                outputs.append(output_inference_inversei)
+            output_inference_inverse_valid = sess.run(output_inference_inverse, feed_dict={x1:self.valid_x_encoder,x3:self.valid_x_inference, y2: self.valid_y_inference})
+            err_valid = 0
+            error_model = np.average(error_model,axis = 0)
+            for i in range(len(output_inference_inverse_valid)):
+                test_valid = self.valid_y_inference * (self.max_y[0] - self.min_y[0]) + self.min_y[0]
+                err_valid += np.square(output_inference_inverse_valid[i][0]-test_valid[i])/len(output_inference_inverse_valid)
+            y_pre = []
+            error = []
+            for k in range(len(self.test_y_inference)):
+                errork = 0
+                outk = 0
+                y_prei = []
+                errori = []
+                for t in range(B):
+                    outk += outputs[t][k][0]/B
+                    errork += np.square(self.test_y_inference[k] - outputs[t][k][0])
+                errori.append(errork)
+                y_prei.append(outk)
+                y_pre.append(y_prei)
+                error.append(errori)
+            # print ("====================")
+            # print (outputs[0])
+            # print (outputs[1])
+            # print(y_pre)
+            # # lol
+            # print (error)
+            # print(err_valid)
+            uncertainty = []
+            for i in range(len(error)):
+                uncertainty_i = np.sqrt(error[i][0] + err_valid[0])
+                uncertainty.append(uncertainty_i)
+            name_LSTM = ""
+            for i in range(len(self.num_units_LSTM)):
+                
+                if (i == len(self.num_units_LSTM) - 1):
+                    name_LSTM += str(self.num_units_LSTM[i])
+                else:
+                    name_LSTM += str(self.num_units_LSTM[i]) +'_'
+            name_inference = ""
+            for i in range(len(self.num_units_inference)):
+                
+                if (i == len(self.num_units_inference) - 1):
+                    name_inference += str(self.num_units_inference[i])
+                else:
+                    name_inference += str(self.num_units_inference[i]) +'_'
+            folder_to_save_result = 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber_ver3/'
+            file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
-            # prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
+            prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
-            # uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
+            uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
+            save_path = saver.save(sess, 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber_ver3/model_saved/' +  file_name)
             
+            plt.plot(cost_train_inference_set)
+            plt.plot(cost_valid_inference_set)
             plt.plot(cost_train_encoder_decoder_set)
             plt.plot(cost_valid_encoder_decoder_set)
             plt.title('model loss')
             plt.ylabel('loss')
             plt.xlabel('epoch')
-            plt.legend(['train_encoder_decoder', 'validation_encoder_decoder'], loc='upper left')
+            plt.legend(['train_inference', 'validation_inference','train_encoder_decoder', 'validation_encoder_decoder'], loc='upper left')
             # plt.show()
             # plt.savefig('/home/thangnguyen/hust/lab/machine_learning_handling/history/history_mem.png')
             plt.savefig(history_file)
             plt.close()
-            
+            predictionDf = pd.DataFrame(np.array(y_pre))
+            # predictionDf.to_csv('/home/thangnguyen/hust/lab/machine_learning_handling/results/result_mem.csv', index=False, header=None)
+            predictionDf.to_csv(prediction_file, index=False, header=None)
+            uncertaintyDf = pd.DataFrame(np.array(uncertainty))
+            uncertaintyDf.to_csv(uncertainty_file, index=False, header=None)
+            # errorDf.to_csv(prediction_file, index=False, header=None)
             vector_stateDf = pd.DataFrame(np.array(vector_state))
             vector_stateDf.to_csv(vector_state_file, index=False, header=None)
             sess.close()
+            return error_model

@@ -80,55 +80,36 @@ dataset_original = [fuzzied_cpu,fuzzied_mem]
 prediction_data = [mem]
 external_feature = [mem]
 
-# data vn30
-# link = './data/VNM_03092008_10092018.csv'
-# colnames = ['date','CLOSE','OPEN','HIGH','LOW','VOLUME'] 
-# df = read_csv(link, header=None, index_col=False, names=colnames, engine='python')
-# scaler = MinMaxScaler(feature_range=(0, 1))
-# date = df['date'].values.reshape(-1,1)
-# CLOSE = df['CLOSE'].values.reshape(-1,1)
-# OPEN = df['OPEN'].values.reshape(-1,1)
-# HIGH = df['HIGH'].values.reshape(-1,1)
-# LOW = df['LOW'].values.reshape(-1,1)
-# VOLUME = df['VOLUME'].values.reshape(-1,1)
-# print (VOLUME)
-# # lol
-# dataset_original = [VOLUME]
-# external_feature = [VOLUME]
-
-# dataset_original = np.concatenate((cpu,mem), axis = 1)
-# print (dataset_original)
-# lol61
 train_size = int(0.6 * len(cpu))
 # print (train_size)
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [18,24,30,36]
-sliding_decoders = [2,4]
-sliding_inferences = [10]
+sliding_encoders = [12]
+sliding_decoders = [4]
+sliding_inferences = [4]
 batch_size_arr = [8]
 input_dim = [len(dataset_original)]
-num_units_LSTM_arr = [[8,4],[16,4]]
+num_units_LSTM_arr = [[8,4]]
 dropout_rate = [0.95]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [1,3]
+activation= [1]
 # 1: momentum
 # 2: adam
 # 3: rmsprop
 
-optimizers = [2,3]
+optimizers = [2]
 
 learning_rate = 0.005
-epochs_encoder_decoder = 2000
-epochs_inference = 2000
+epochs_encoder_decoder = 1
+epochs_inference = 1
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
-num_units_inference_arr = [[32]]
+num_units_inference_arr = [[8]]
 number_out_decoder = [1]
 n_output_encoder_decoder = 1
 param_grid = {
@@ -153,9 +134,6 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    # summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_fuzzy_bnn_multivariate_uber_ver2.csv",'a+')
-    # summary.write("model,MAE,RMSE\n")
- 
     pool = Pool(1)
     pool.map(train_model, list(queue.queue))
     pool.close()
