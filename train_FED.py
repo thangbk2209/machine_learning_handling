@@ -76,7 +76,7 @@ fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
 fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
 fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
 fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
-dataset_original = [fuzzied_mem,fuzzied_cpu]
+dataset_original = [fuzzied_cpu,fuzzied_mem]
 prediction_data = [mem]
 external_feature = [mem]
 
@@ -104,7 +104,7 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [30,36]
+sliding_encoders = [18,24,30,36]
 sliding_decoders = [2,4]
 sliding_inferences = [10]
 batch_size_arr = [8]
@@ -115,7 +115,7 @@ dropout_rate = [0.95]
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [1]
+activation= [1,3]
 # 1: momentum
 # 2: adam
 # 3: rmsprop
@@ -129,7 +129,7 @@ patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
 num_units_inference_arr = [[32]]
-number_out_decoder = [1,2]
+number_out_decoder = [1]
 n_output_encoder_decoder = 1
 param_grid = {
         'sliding_encoder': sliding_encoders,
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     # summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_fuzzy_bnn_multivariate_uber_ver2.csv",'a+')
     # summary.write("model,MAE,RMSE\n")
  
-    pool = Pool(32)
+    pool = Pool(1)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
