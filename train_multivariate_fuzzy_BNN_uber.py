@@ -77,7 +77,7 @@ mem = df['mem_usage'].values.reshape(-1,1)
 disk_io_time = df['disk_io_time'].values.reshape(-1,1)
 disk_space = df['disk_space'].values.reshape(-1,1)
 
-link_fuzzy = './data/fuzzied/5minutes.csv'
+link_fuzzy = './data/fuzzied/5minutes_ver2.csv'
 fuzzy_df = read_csv(link, header=None, index_col=False, names=colnames, usecols=[0,1,2,3], engine='python')
 fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
 fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
@@ -111,13 +111,13 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [30]
+sliding_encoders = [18]
 sliding_decoders = [2,4]
-sliding_inferences = [4,8]
+sliding_inferences = [8,10]
 batch_size_arr = [4,8]
 input_dim = [len(dataset_original)]
-num_units_LSTM_arr = [[16,4],[8,4]]
-dropout_rate = [0.95]
+num_units_LSTM_arr = [[16,4]]
+dropout_rate = [0.5,0.75,0.95]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
@@ -127,7 +127,7 @@ activation= [1]
 # 2: adam
 # 3: rmsprop
 
-optimizers = [2]
+optimizers = [2,3]
 
 learning_rate = 0.005
 epochs_encoder_decoder = 2000
