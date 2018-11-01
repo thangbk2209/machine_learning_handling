@@ -103,13 +103,13 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [12]
-sliding_decoders = [2,4]
-sliding_inferences = [4]
+sliding_encoders = [18]
+sliding_decoders = [2,3]
+sliding_inferences = [8,9,10]
 batch_size_arr = [8]
 input_dim = [len(dataset_original)]
 num_units_LSTM_arr = [[16,4]]
-dropout_rate = [0.95]
+dropout_rate = [0.75,0.9,0.95]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
@@ -127,7 +127,7 @@ epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
-num_units_inference_arr = [[8,4]]
+num_units_inference_arr = [[16]]
 number_out_decoder = [1,2]
 n_output_encoder_decoder = 1
 param_grid = {
