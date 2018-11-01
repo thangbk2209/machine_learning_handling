@@ -1,2 +1,2 @@
-model_checkpoint_path: "30-2-4-4-16_4-1-2-2-16-1-0.95"
-all_model_checkpoint_paths: "30-2-4-4-16_4-1-2-2-16-1-0.95"
+model_checkpoint_path: "30-4-8-8-8_4-1-2-2-8-2-0.95"
+all_model_checkpoint_paths: "30-4-8-8-8_4-1-2-2-8-2-0.95"
