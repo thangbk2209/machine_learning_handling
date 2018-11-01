@@ -114,7 +114,8 @@ class Model:
         self.preprocessing_data()
         print ("================check preprocessing data ok==================")
         print ('self.train_x_encoder')
-        print (self.train_x_encoder[0])
+        print (self.train_x_encoder.shape)
+        print (self.test_x_encoder.shape)
         print ('self.train_x_decoder')
         print (self.train_x_decoder[0])
         print ('self.train_y_decoder')
@@ -161,8 +162,8 @@ class Model:
         print (self.sliding_encoder)
         print (len(self.original_data))
         tf.reset_default_graph()
-        x1 = tf.placeholder("float",[None, self.sliding_encoder*len(self.original_data)/self.input_dim, self.input_dim])
-        x2 = tf.placeholder("float",shape = (None, self.sliding_decoder*len(self.original_data)/self.input_dim, self.input_dim))
+        x1 = tf.placeholder("float",[None, self.sliding_encoder*len(self.original_data)/self.input_dim, self.input_dim],name='x1')
+        x2 = tf.placeholder("float",shape = (None, self.sliding_decoder*len(self.original_data)/self.input_dim, self.input_dim),name='x2')
         if(self.number_out_decoder == 1):
             y1 = tf.placeholder("float", [None, self.sliding_decoder])
             with tf.variable_scope('encoder'):
@@ -171,6 +172,7 @@ class Model:
                 # input_encoder=tf.unstack(x1 ,[None,self.sliding_encoder/self.time_step,self.time_step])
                 outputs_encoder, new_state_encoder=tf.nn.dynamic_rnn(encoder, x1, dtype="float32")
                 outputs_encoder = tf.identity(outputs_encoder, name='outputs_encoder')
+                state_encoder = tf.identity(new_state_encoder[-1].h, name='state_encoder')
             with tf.variable_scope('decoder'):
                 decoder = self.init_RNN(self.num_units_LSTM,activation)
                 outputs_decoder, new_state_decoder=tf.nn.dynamic_rnn(decoder, x2,dtype="float32", initial_state=new_state_encoder)
@@ -186,7 +188,7 @@ class Model:
                 # input_encoder=tf.unstack(x1 ,[None,self.sliding_encoder/self.time_step,self.time_step])
                 outputs_encoder,new_state_encoder=tf.nn.dynamic_rnn(encoder, x1, dtype="float32")
                 # with tf.control_dependencies([state.assign(state_encoder)]):
-                #     outputs_encoder = tf.identity(outputs_encoder, name='outputs_encoder')
+                # outputs_encoder = tf.identity(outputs_encoder, name='outputs_encoder')
             with tf.variable_scope('decoder1'):
                 decoder = self.init_RNN(self.num_units_LSTM,activation)
                 outputs_decoder1,new_state_decoder1=tf.nn.dynamic_rnn(decoder, x2,dtype="float32", initial_state = new_state_encoder)
@@ -209,9 +211,9 @@ class Model:
                 name_LSTM += str(self.num_units_LSTM[i])
             else:
                 name_LSTM += str(self.num_units_LSTM[i]) +'_'
-        folder_to_save_result = 'results/fuzzy/encoder_decoder/5minutes/mem/bnn_multivariate_uber/'
+        folder_to_save_result = 'results/fuzzy/encoder_decoder/5minutes/cpu/bnn_multivariate_uber/'
         file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
-        save_path = 'results/fuzzy/encoder_decoder/5minutes/mem/bnn_multivariate_uber/model_saved/' +  file_name
+        save_path = 'results/fuzzy/encoder_decoder/5minutes/cpu/bnn_multivariate_uber/model_saved/' +  file_name
             
         with tf.Session() as sess:
             saver = tf.train.Saver()
@@ -252,7 +254,7 @@ class Model:
                 builder.add_meta_graph_and_variables(sess, ["tag"], signature_def_map= {
                 "model": tf.saved_model.signature_def_utils.predict_signature_def(
                     inputs= {"x1": x1,"x2":x2},
-                    outputs= {"y1": y1,"state": new_state_encoder[-1].h})
+                    outputs= {"y1": y1,"state_encoder": state_encoder})
                 })
                 builder.save()
             else:
@@ -292,9 +294,13 @@ class Model:
                 builder.save()
             vector_state_test = sess.run(new_state_encoder[-1].h,feed_dict={x1:self.test_x_encoder})
             vector_state_train = sess.run(new_state_encoder[-1].h,feed_dict={x1:self.train_x_encoder})
+            vector_state_valid = sess.run(new_state_encoder[-1].h,feed_dict={x1:self.valid_x_encoder})
+            
             print (vector_state_test.shape)
             print (vector_state_train.shape)
-            vector_state = np.concatenate((vector_state_test,vector_state_train))
+            print (vector_state_train[0])
+            print (vector_state_test[0])
+            vector_state = np.concatenate((vector_state_train,vector_state_valid,vector_state_test))
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             # prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'

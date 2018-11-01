@@ -489,43 +489,43 @@ class FuzzyMultivariateTimeseriesBNNUber:
         # print (self.external_feature[0])
         # lol117
         self.scaled_data, self.min_arr, self.max_arr = self.scale_timeseries(self.original_data)
-        print ("==============check scale data============")
-        print (self.scaled_data)
-        print (self.min_arr)
-        print (self.max_arr)
+        # print ("==============check scale data============")
+        # print (self.scaled_data)
+        # print (self.min_arr)
+        # print (self.max_arr)
         # lol121
-        print (self.prediction_data)
-        print (self.original_data)
+        # print (self.prediction_data)
+        # print (self.original_data)
         self.scale_prediction_data, self.min_prediction_data, self.max_prediction_data = self.scale_timeseries(self.prediction_data)
-        print (self.scale_prediction_data)
-        print (self.scaled_data)
+        # print (self.scale_prediction_data)
+        # print (self.scaled_data)
         # lol/
         self.scaled_external_feature, self.min_ext, self.max_ext = self.scale_timeseries(self.external_feature)
         self.multivariate_timeseries = self.create_multivariate_timeseries(self.scaled_data)
         # check create multivariate timeseries for encoder,decoder
-        print ("=================check create timeseries for encoder-decoder====================")
-        print (self.multivariate_timeseries)
-        # print (self.scaled_external_feature)
-        print ('================scaled external feature===============')
+        # print ("=================check create timeseries for encoder-decoder====================")
+        # print (self.multivariate_timeseries)
+        # # print (self.scaled_external_feature)
+        # print ('================scaled external feature===============')
         self.ext_timeseries = self.create_multivariate_timeseries(self.scaled_external_feature)
         # print (self.multivariate_timeseries)
-        print ('=============check external timeseries===============')
-        print (self.ext_timeseries)
+        # print ('=============check external timeseries===============')
+        # print (self.ext_timeseries)
         # lol135
         dataX_encoder = self.create_x(self.multivariate_timeseries, self.sliding_encoder)
         dataX_decoder = self.create_x(self.multivariate_timeseries, self.sliding_decoder)
         dataX_ext = self.create_x(self.ext_timeseries, self.sliding_inference)
         # check create input-output pair for training
-        print ('min_arr')
-        print (self.min_arr)
-        print ('max_arr')
-        print (self.max_arr)
-        print ('dataX_encoder')
-        print (dataX_encoder[0])
-        print ('dataX_decoder')
-        print (dataX_decoder[0])
-        print ('dataX_ext')
-        print (dataX_ext[0])
+        # print ('min_arr')
+        # print (self.min_arr)
+        # print ('max_arr')
+        # print (self.max_arr)
+        # print ('dataX_encoder')
+        # print (dataX_encoder[0])
+        # print ('dataX_decoder')
+        # print (dataX_decoder[0])
+        # print ('dataX_ext')
+        # print (dataX_ext[0])
         # lol150
         # print (dataX_encoder[0])
         # print (dataX_encoder[1])
@@ -533,9 +533,9 @@ class FuzzyMultivariateTimeseriesBNNUber:
         # print (dataX_encoder[1])
         # print (dataX_decoder[0])
         # print (dataX_decoder[1])
-        print ("==============check train x==============")
+        # print ("==============check train x==============")
         self.train_x_encoder = dataX_encoder[0:self.train_size - self.sliding_encoder]
-        print (self.train_x_encoder[0])
+        # print (self.train_x_encoder[0])
         # lol131
         self.train_x_encoder = np.array(self.train_x_encoder)
         
@@ -549,7 +549,7 @@ class FuzzyMultivariateTimeseriesBNNUber:
         self.test_x_encoder = np.reshape(self.test_x_encoder, (self.test_x_encoder.shape[0], int(self.test_x_encoder.shape[1]*len(self.original_data)/self.input_dim), self.input_dim))
         
         self.train_x_decoder = np.array(dataX_decoder[self.sliding_encoder - self.sliding_decoder:self.train_size - self.sliding_decoder])
-        print (self.train_x_decoder[0])
+        # print (self.train_x_decoder[0])
         self.train_x_decoder = np.reshape(self.train_x_decoder, (self.train_x_decoder.shape[0], int(self.train_x_decoder.shape[1]*len(self.original_data)/self.input_dim), self.input_dim))
         
         self.valid_x_decoder = np.array(dataX_decoder[self.train_size - self.sliding_decoder: self.train_size + self.valid_size - self.sliding_decoder])
@@ -560,14 +560,14 @@ class FuzzyMultivariateTimeseriesBNNUber:
         # self.train_y_decoder = self.scaled_data[0][self.sliding_encoder : self.train_size]
         self.train_y_decoder = []
         if (self.number_out_decoder == 1):
-            print (train_y_decoder_raw.shape)
+            # print (train_y_decoder_raw.shape)
             for i in range(len(train_y_decoder_raw)):
                 train_y_decoderi = []
                 for j in range(len(train_y_decoder_raw[i])):
                     train_y_decoderi.append(train_y_decoder_raw[i][j][0])
                 self.train_y_decoder.append(train_y_decoderi)
         else:
-            print (train_y_decoder_raw.shape)
+            # print (train_y_decoder_raw.shape)
             train_y_decoder1 = []
             train_y_decoder2 = []
             for i in range(len(train_y_decoder_raw)):
@@ -588,14 +588,14 @@ class FuzzyMultivariateTimeseriesBNNUber:
         # self.train_y_decoder = self.scaled_data[0][self.sliding_encoder : self.train_size]
         self.valid_y_decoder = []
         if (self.number_out_decoder == 1):
-            print (valid_y_decoder_raw.shape)
+            # print (valid_y_decoder_raw.shape)
             for i in range(len(valid_y_decoder_raw)):
                 valid_y_decoderi = []
                 for j in range(len(valid_y_decoder_raw[i])):
                     valid_y_decoderi.append(valid_y_decoder_raw[i][j][0])
                 self.valid_y_decoder.append(valid_y_decoderi)
         else:
-            print (valid_y_decoder_raw.shape)
+            # print (valid_y_decoder_raw.shape)
             valid_y_decoder1 = []
             valid_y_decoder2 = []
             for i in range(len(valid_y_decoder_raw)):
@@ -634,8 +634,8 @@ class FuzzyMultivariateTimeseriesBNNUber:
         # print (self.train_x_decoder[0])
         # print ('x inference')
         # print (self.train_x_inference[0])
-        print ('train y decoder')
-        print (self.train_y_decoder[0])
+        # print ('train y decoder')
+        # print (self.train_y_decoder[0])
         # # print (self.train_y_decoder[1][0])
         # print ('y inference')
         # print (self.train_y_inference[0])
