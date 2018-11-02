@@ -15,7 +15,6 @@ import pandas as pd
 from tensorflow.contrib import rnn
 # from model.utils.preprocessing_data import Timeseries
 # preprocessing_data_forBNN
-from model.encoder_decoder import Model as encoder_decoder
 from model.BNN_multivariate import Model as BNN_multivariate
 import traceback
    
@@ -33,14 +32,15 @@ def train_model(item):
     num_units_inference = item["num_units_inference"]    
     optimizer = item["optimizer"]
     dropout_rate = item["dropout_rate"]
-    model = BNN_multivariate(dataset_original, external_feature, train_size, valid_size, 
+    number_out_decoder = item["number_out_decoder"]
+    model = BNN_multivariate(dataset_original, prediction_data, external_feature, train_size, valid_size, 
         sliding_encoder =  sliding_encoder, sliding_decoder = sliding_decoder,
         sliding_inference = sliding_inference, batch_size = batch_size,
         num_units_LSTM = num_units_LSTM, 
         activation = activation,optimizer = optimizer,
         learning_rate = learning_rate, epochs_encoder_decoder = epochs_encoder_decoder,
         epochs_inference = epochs_inference,
-        input_dim = input_dim, num_units_inference = num_units_inference, patience = patience, dropout_rate = dropout_rate )
+        input_dim = input_dim, num_units_inference = num_units_inference, patience = patience, number_out_decoder = number_out_decoder, dropout_rate = dropout_rate )
     error = model.fit()
     name_LSTM = ""
     for i in range(len(num_units_LSTM)):
@@ -70,26 +70,34 @@ cpu = df['cpu_rate'].values.reshape(-1,1)
 mem = df['mem_usage'].values.reshape(-1,1)
 disk_io_time = df['disk_io_time'].values.reshape(-1,1)
 disk_space = df['disk_space'].values.reshape(-1,1)
-dataset_original = [mem]
+
+link_fuzzy = './data/fuzzied/5minutes.csv'
+fuzzy_df = read_csv(link, header=None, index_col=False, names=colnames, usecols=[0,1,2,3], engine='python')
+fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
+fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
+fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
+fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
+# fuzzied_mem,fuzzied_cpu
+dataset_original = [mem,cpu]
+prediction_data = [mem]
+
 external_feature = [mem]
-# dataset_original = np.concatenate((cpu,mem), axis = 1)
-# print (dataset_original)
-# lol61
+
 train_size = int(0.6 * len(cpu))
-# print (train_size)
+
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [12]
-sliding_decoders = [2,4]
-sliding_inferences = [4]
-batch_size_arr = [8]
+sliding_encoders = [24]
+sliding_decoders = [2,3]
+sliding_inferences = [8,9,10]
+batch_size_arr = [16]
 num_units_LSTM_arr = [[16,4]]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [1]
+activation= [1,3]
 # 1: momentum
 # 2: adam
 # 3: rmsprop
@@ -97,13 +105,14 @@ activation= [1]
 optimizers = [2]
 
 learning_rate = 0.005
-epochs_encoder_decoder = 1
-epochs_inference = 1
+epochs_encoder_decoder = 2000
+epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
-input_dim = [1]
-num_units_inference_arr = [[16,4]]
-dropout_rate = [0.95]
+input_dim = [len(dataset_original)]
+num_units_inference_arr = [[16]]
+dropout_rate = [0.5,0.75,0.9,0.95]
+number_out_decoder = [1,2]
 n_output_encoder_decoder = 1
 param_grid = {
         'sliding_encoder': sliding_encoders,
@@ -115,6 +124,7 @@ param_grid = {
         'input_dim': input_dim,
         'num_units_inference': num_units_inference_arr,
         'optimizer':optimizers,
+        'number_out_decoder':number_out_decoder,
         'dropout_rate':dropout_rate
     }
 # Create combination of params.
@@ -129,30 +139,8 @@ if __name__ == '__main__':
     summary = open("results/multivariate/mem/5minutes/evaluate_bnn_multivariate.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
-    pool = Pool(4)
+    pool = Pool(10)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
     pool.terminate()
-
-# sliding_encoder = 12
-# sliding_decoder = 4
-# sliding_inference = 6
-# activation_decoder = 1
-# activation_inference = 1
-# num_units = 2
-# num_layers = 1
-# learning_rate = 0.01
-# epochs_encoder_decoder = 2
-# epochs_inference = 2
-# input_dim = 1
-# n_output_encoder_decoder = 1
-# batch_size = 4
-# num_units_inference = 20
-# patience = 20
-# model = BNN_multivariate(dataset_original, external_feature, train_size, valid_size, 
-#     sliding_encoder, sliding_decoder, sliding_inference, batch_size,
-#     num_units, num_layers, activation_decoder, activation_inference,
-#     # n_input = None, n_output = None,
-#     learning_rate, epochs_encoder_decoder,epochs_inference, input_dim, num_units_inference, patience)
-# model.fit() 

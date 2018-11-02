@@ -55,10 +55,25 @@ Pred = Pred_df.values
 # RMSE = error_df.values[0][0]
 # MAE = error_df.values[1][0]
 # print RMSE
+
 realTestData = RealDataset[train_size:len(RealDataset)]
 print (len(Pred))
 print (len(realTestData))
+x, y = np.random.randn(2, 100)
+print (x.shape)
+realTestData = realTestData.reshape(realTestData.shape[0])
+Pred = Pred.reshape(Pred.shape[0])
+print (realTestData.shape)
+# lol
 file_path = '/'
 # file_path = 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber/plot/'
-draw_predict(i,realTestData, Pred,file_name,file_path)
+# draw_predict(i,realTestData, Pred,file_name,file_path)
+fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True)
+ax1.xcorr(realTestData, Pred, usevlines=True, maxlags=50, normed=True, lw=2)
+ax1.grid(True)
+ax1.axhline(0, color='black', lw=2)
 
+ax2.acorr(realTestData, usevlines=True, normed=True, maxlags=50, lw=2)
+ax2.grid(True)
+ax2.axhline(0, color='black', lw=2)
+plt.show()
