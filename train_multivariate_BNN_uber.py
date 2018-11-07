@@ -60,11 +60,7 @@ def train_model(item):
             name_inference += str(num_units_inference[i]) +'_'
     file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+ '-' + str(optimizer) + '-' + str(input_dim) + '-' + name_inference +'-'+str(number_out_decoder) +'-'+str(dropout_rate)
             
-<<<<<<< HEAD
     summary = open("results/multivariate/mem/5minutes/evaluate_bnn_multivariate_uber_ver4.csv",'a+')
-=======
-    summary = open("results/multivariate/cpu/5minutes/evaluate_bnn_multivariate_uber_ver2.csv",'a+')
->>>>>>> 860723d44626e569410c2cf5a0b9eab7153f1649
     summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
     # except:
@@ -80,8 +76,8 @@ cpu = df['cpu_rate'].values.reshape(-1,1)
 mem = df['mem_usage'].values.reshape(-1,1)
 disk_io_time = df['disk_io_time'].values.reshape(-1,1)
 disk_space = df['disk_space'].values.reshape(-1,1)
-dataset_original = [cpu,mem]
-external_feature = [cpu]
+dataset_original = [mem]
+external_feature = [mem]
 
 
 train_size = int(0.7 * len(cpu))

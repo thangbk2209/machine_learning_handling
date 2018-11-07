@@ -36,16 +36,16 @@ disk_space = df['disk_space'].values.reshape(-1,1)
 # for i, file in enumerate(arr):
 i = 0
 # file = '18-8-8-8-[16, 4]-1-2-[16]-2-2.csv'
-file = '24-2-10-8-32_4-1-2-2-64-1-0.95.csv'
+file = '18-4-4-4-8_4-1-2-2-32-2-0.95.csv'
 
 print (str(file))
 file_path = 'testANN.csv'
-file_path = 'results/multivariate/mem/5minutes/bnn_multivariate_uber_ver2/prediction/'+ str(file)
+file_path = 'results/fuzzy/multivariate/cpu/5minutes/bnn_multivariate_uber/prediction/'+ str(file)
 Pred_df = read_csv(file_path, header=None, index_col=False, engine='python')
 file_name = file.split('.')[0]
 # error_df = read_csv('results/cpu/5minutes/bnn_multivariate_uber/prediction/' +file, header=None, index_col=False, engine='python')
 
-RealDataset = mem
+RealDataset = cpu
 
 train_size = int(len(RealDataset)*0.8)
 test_size = len(RealDataset) - train_size
@@ -65,15 +65,15 @@ realTestData = realTestData.reshape(realTestData.shape[0])
 Pred = Pred.reshape(Pred.shape[0])
 print (realTestData.shape)
 # lol
-file_path = '/'
-# file_path = 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber/plot/'
-# draw_predict(i,realTestData, Pred,file_name,file_path)
-fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True)
-ax1.xcorr(realTestData, Pred, usevlines=True, maxlags=50, normed=True, lw=2)
-ax1.grid(True)
-ax1.axhline(0, color='black', lw=2)
+# file_path = '/'
+file_path = 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate/plot/'
+draw_predict(i,realTestData, Pred,file_name,file_path)
+# fig, [ax1, ax2] = plt.subplots(2, 1, sharex=True)
+# ax1.xcorr(realTestData, Pred, usevlines=True, maxlags=50, normed=True, lw=2)
+# ax1.grid(True)
+# ax1.axhline(0, color='black', lw=2)
 
-ax2.acorr(realTestData, usevlines=True, normed=True, maxlags=50, lw=2)
-ax2.grid(True)
-ax2.axhline(0, color='black', lw=2)
-plt.show()
+# ax2.acorr(realTestData, usevlines=True, normed=True, maxlags=50, lw=2)
+# ax2.grid(True)
+# ax2.axhline(0, color='black', lw=2)
+# plt.show()

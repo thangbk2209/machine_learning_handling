@@ -18,11 +18,9 @@ from Graph import *
 class Model:
     def __init__(self, original_data = None, prediction_data = None, external_feature = None, train_size = None, valid_size = None, 
     sliding_encoder = None, sliding_decoder = None, sliding_inference = None,
-    batch_size = None, num_units_LSTM = None, num_layers = None,
-    activation = None, optimizer = None,
-    # n_input = None, n_output = None,
-    learning_rate = None, epochs_encoder_decoder = None, epochs_inference = None, 
-    input_dim = None, num_units_inference = None, patience = None, number_out_decoder = None, dropout_rate = None):
+    batch_size = None, num_units_LSTM = None, num_layers = None, activation = None, optimizer = None, 
+    learning_rate = None, epochs_encoder_decoder = None, epochs_inference = None,  input_dim = None, 
+    num_units_inference = None, patience = None, number_out_decoder = None, dropout_rate = None, range_normalize = None):
         self.original_data = original_data
         self.prediction_data = prediction_data
         self.external_feature = external_feature
@@ -46,9 +44,11 @@ class Model:
         self.patience = patience
         self.number_out_decoder = number_out_decoder
         self.dropout_rate = dropout_rate
+        self.range_normalize = range_normalize
     def preprocessing_data(self):
-        timeseries = MultivariateTimeseriesBNN(self.original_data, self.prediction_data, self.external_feature, self.train_size, self.valid_size, self.sliding_encoder, self.sliding_decoder, self.sliding_inference, self.input_dim, self.number_out_decoder)
+        timeseries = MultivariateTimeseriesBNN(self.original_data, self.prediction_data, self.external_feature, self.train_size, self.valid_size, self.sliding_encoder, self.sliding_decoder, self.sliding_inference, self.input_dim, self.number_out_decoder, self.range_normalize)
         self.train_x_encoder, self.valid_x_encoder, self.test_x_encoder, self.train_x_decoder, self.valid_x_decoder, self.test_x_decoder, self.train_y_decoder, self.valid_y_decoder, self.test_y_decoder, self.min_prediction_arr, self.max_prediction_arr, self.train_x_inference, self.valid_x_inference, self.test_x_inference, self.train_y_inference, self.valid_y_inference, self.test_y_inference = timeseries.prepare_data()
+        
     def init_RNN(self, num_units, activation):
         print(num_units)
         num_layers = len(num_units)
@@ -336,13 +336,13 @@ class Model:
                     name_inference += str(self.num_units_inference[i])
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
-            folder_to_save_result = 'results/multivariate/mem/5minutes/bnn_multivariate/'
+            folder_to_save_result = 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate/'
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+'-'+str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference+'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
             uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
-            save_path = saver.save(sess, 'results/multivariate/mem/5minutes/bnn_multivariate/model_saved/' +  file_name) +'/model'
+            save_path = saver.save(sess, 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate/model_saved/' +  file_name) +'/model'
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
             plt.plot(cost_train_encoder_decoder_set)

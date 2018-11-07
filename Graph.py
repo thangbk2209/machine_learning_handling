@@ -7,7 +7,7 @@ def draw_predict(fig_id=None, y_test=None, y_pred=None, filename=None, pathsave=
     plt.ylabel('CPU')
     plt.xlabel('Timestamp')
     plt.legend(['Actual', 'Predict'], loc='upper right')
-    plt.savefig(pathsave + filename + ".png")
+    # plt.savefig(pathsave + filename + ".png")
     plt.show()
     plt.close()
     return None
