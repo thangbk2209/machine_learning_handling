@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+simport matplotlib.pyplot as plt
 import pandas as pd 
 from pandas import read_csv
 import numpy as np
