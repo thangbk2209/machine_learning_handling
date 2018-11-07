@@ -163,7 +163,7 @@ if __name__ == '__main__':
     summary = open("results/fuzzy/univariate/mem/5minutes/evaluate_bnn_uber.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
-    pool = Pool(1)
+    pool = Pool(8)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
