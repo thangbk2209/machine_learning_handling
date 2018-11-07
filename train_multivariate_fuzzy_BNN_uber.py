@@ -111,18 +111,18 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [18]
-sliding_decoders = [3]
-sliding_inferences = [8]
+sliding_encoders = [18,24]
+sliding_decoders = [2,3,4]
+sliding_inferences = [8,9,20]
 batch_size_arr = [16]
 input_dim = [len(dataset_original)]
 num_units_LSTM_arr = [[16,4]]
-dropout_rate = [0.75]
+dropout_rate = [0.75,0.9]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [1]
+activation= [1,3]
 # 1: momentum
 # 2: adam
 # 3: rmsprop
@@ -130,12 +130,12 @@ activation= [1]
 optimizers = [2,3]
 
 learning_rate = 0.005
-epochs_encoder_decoder = 1
-epochs_inference = 1
+epochs_encoder_decoder = 2000
+epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
-num_units_inference_arr = [[16]]
+num_units_inference_arr = [[16],[8]]
 number_out_decoder = [1]
 n_output_encoder_decoder = 1
 param_grid = {
