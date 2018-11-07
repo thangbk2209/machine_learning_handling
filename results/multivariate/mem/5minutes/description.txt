@@ -1,0 +1,2 @@
+ver1,2,3: external_feature: [mem]
+ver4: external_feature: [mem,cpu]

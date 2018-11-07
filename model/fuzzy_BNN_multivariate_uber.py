@@ -112,24 +112,24 @@ class Model:
             return True
     def fit(self):
         self.preprocessing_data()
-        print ("================check preprocessing data ok==================")
-        print ('self.train_x_encoder')
-        print (self.train_x_encoder[0])
-        print ('self.train_x_decoder')
-        print (self.train_x_decoder[0])
-        print ('self.train_y_decoder')
-        print (self.train_y_decoder[0])
-        print (self.train_y_decoder.shape)
-        print ('self.train_x_inference')
-        print (self.train_x_inference[0])
-        print ('self.train_y_inference')
-        print (self.train_y_inference[0])
-        print ('test y')
-        print (self.test_y_inference)
-        print (self.min_y)
-        print (self.max_y)
-        print (len(self.train_x_encoder))
-        # lol111
+        # print ("================check preprocessing data ok==================")
+        # print ('self.train_x_encoder')
+        # print (self.train_x_encoder[0])
+        # print ('self.train_x_decoder')
+        # print (self.train_x_decoder[0])
+        # print ('self.train_y_decoder')
+        # print (self.train_y_decoder[0])
+        # print (self.train_y_decoder.shape)
+        # print ('self.train_x_inference')
+        # print (self.train_x_inference[0])
+        # print ('self.train_y_inference')
+        # print (self.train_y_inference[0])
+        # print ('test y')
+        # print (self.test_y_inference)
+        # print (self.min_y)
+        # print (self.max_y)
+        # print (len(self.train_x_encoder))
+        # lol132
         self.train_x_encoder = np.array(self.train_x_encoder)
         self.train_x_decoder = np.array(self.train_x_decoder)
         self.test_x_encoder = np.array(self.test_x_encoder)
@@ -395,13 +395,14 @@ class Model:
                     name_inference += str(self.num_units_inference[i])
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
-            folder_to_save_result = 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber_ver3/'
+            folder_to_save_result = 'results/fuzzy/univariate/mem/5minutes/bnn_uber/'
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
             uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
-            save_path = saver.save(sess, 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber_ver3/model_saved/' +  file_name)
+
+            save_path = saver.save(sess, 'results/fuzzy/univariate/mem/5minutes/bnn_uber/model_saved/' +  file_name)
             
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
