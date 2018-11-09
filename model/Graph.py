@@ -1,12 +1,14 @@
 import matplotlib.pyplot as plt
 
-def draw_predict(y_test=None, y_pred=None, filename=None, pathsave=None):
+def draw_predict(i,y_test=None, y_pred=None, filename=None, pathsave=None):
+    print (filename)
+    print (pathsave)
     plt.plot(y_test)
     plt.plot(y_pred)
     plt.ylabel('CPU')
     plt.xlabel('Timestamp')
     plt.legend(['Actual', 'Predict'], loc='upper right')
-    # plt.savefig(pathsave + filename + ".png")
+    plt.savefig('fuzzy_multi_bnn_cpu.png")
     plt.show()
     plt.close()
     return None

@@ -91,7 +91,7 @@ class Model:
                                          num_units[i],
                                          activation = activation,
                                          name = 'layer'+str(i))
-            drop_rate = 1-self.dropout_rate
+            drop_rate = self.dropout_rate
             prev_layer = tf.layers.dropout(prev_layer , rate = drop_rate)
         
         prediction = tf.layers.dense(inputs=prev_layer,
@@ -259,7 +259,10 @@ class Model:
                     for i in range(total_batch):
                         batch_xs_encoder,batch_xs_decoder = self.train_x_encoder[i*self.batch_size:(i+1)*self.batch_size], self.train_x_decoder[i*self.batch_size:(i+1)*self.batch_size]
                         batch_ys = self.train_y_decoder[i*self.batch_size:(i+1)*self.batch_size]
-                        # print (sess.run(outputs_encoder,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder, y1:batch_ys}))
+                        # print (sess.run(prediction,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder, y1:batch_ys}).shape)
+                        # print (sess.run(loss_encoder_decoder,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder, y1:batch_ys}))
+                        
+                        # lol
                         # print (sess.run(new_state_encoder,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder, y1:batch_ys}))
                         sess.run(optimizer_encoder_decoder,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder, y1:batch_ys})
                         avg_cost += sess.run(loss_encoder_decoder,feed_dict={x1: batch_xs_encoder,x2: batch_xs_decoder, y1:batch_ys})/total_batch
@@ -395,13 +398,13 @@ class Model:
                     name_inference += str(self.num_units_inference[i])
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
-            folder_to_save_result = 'results/fuzzy/univariate/cpu/5minutes/bnn_uber/'
+            folder_to_save_result = 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber_ver6/'
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
             uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
-            save_path = saver.save(sess, 'results/fuzzy/univariate/cpu/5minutes/bnn_uber/model_saved/' +  file_name + '/model')
+            save_path = saver.save(sess,folder_to_save_result + 'model_saved/' +  file_name +'/model')
             
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)

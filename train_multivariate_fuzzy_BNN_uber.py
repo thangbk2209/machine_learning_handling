@@ -60,7 +60,7 @@ def train_model(item):
             name_inference += str(num_units_inference[i]) +'_'
     file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+ '-' + str(optimizer) + '-' + str(input_dim) + '-' + name_inference +'-'+str(number_out_decoder) +'-'+str(dropout_rate)
             
-    summary = open("results/fuzzy/univariate/cpu/5minutes/evaluate_bnn_uber.csv",'a+')
+    summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver6.csv",'a+')
     summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
     # except:
@@ -83,32 +83,14 @@ fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
 fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
 fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
 fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
-dataset_original = [fuzzied_cpu]
-prediction_data = [cpu]
-external_feature = [cpu]
+dataset_original = [fuzzied_mem,fuzzied_cpu]
+prediction_data = [mem]
+external_feature = [mem]
 
-# data vn30
-# link = './data/VNM_03092008_10092018.csv'
-# colnames = ['date','CLOSE','OPEN','HIGH','LOW','VOLUME'] 
-# df = read_csv(link, header=None, index_col=False, names=colnames, engine='python')
-# scaler = MinMaxScaler(feature_range=(0, 1))
-# date = df['date'].values.reshape(-1,1)
-# CLOSE = df['CLOSE'].values.reshape(-1,1)
-# OPEN = df['OPEN'].values.reshape(-1,1)
-# HIGH = df['HIGH'].values.reshape(-1,1)
-# LOW = df['LOW'].values.reshape(-1,1)
-# VOLUME = df['VOLUME'].values.reshape(-1,1)
-# print (VOLUME)
-# # lol
-# dataset_original = [VOLUME]
-# external_feature = [VOLUME]
 
-# dataset_original = np.concatenate((cpu,mem), axis = 1)
-# print (dataset_original)
-# lol61
-train_size = int(0.7 * len(cpu))
+train_size = int(0.6 * len(cpu))
 # print (train_size)
-valid_size = int(0.1 * len(cpu))
+valid_size = int(0.2 * len(cpu))
 
 
 sliding_encoders = [18,24]
@@ -117,7 +99,7 @@ sliding_inferences = [8,9]
 batch_size_arr = [16]
 input_dim = [len(dataset_original)]
 num_units_LSTM_arr = [[16,4]]
-dropout_rate = [0.75,0.9]
+dropout_rate = [0.9]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
@@ -135,8 +117,8 @@ epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
-num_units_inference_arr = [[16],[8]]
-number_out_decoder = [1]
+num_units_inference_arr = [[16]]
+number_out_decoder = [1,2]
 n_output_encoder_decoder = 1
 param_grid = {
         'sliding_encoder': sliding_encoders,
@@ -160,7 +142,7 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    summary = open("results/fuzzy/univariate/cpu/5minutes/evaluate_bnn_uber.csv",'a+')
+    summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver6.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
     pool = Pool(8)
