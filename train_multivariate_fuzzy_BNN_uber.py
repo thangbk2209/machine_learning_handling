@@ -106,14 +106,14 @@ external_feature = [mem]
 # dataset_original = np.concatenate((cpu,mem), axis = 1)
 # print (dataset_original)
 # lol61
-train_size = int(0.6 * len(cpu))
+train_size = int(0.7 * len(cpu))
 # print (train_size)
-valid_size = int(0.2 * len(cpu))
+valid_size = int(0.1 * len(cpu))
 
 
 sliding_encoders = [18,24]
 sliding_decoders = [2,3,4]
-sliding_inferences = [8,9,20]
+sliding_inferences = [8,9]
 batch_size_arr = [16]
 input_dim = [len(dataset_original)]
 num_units_LSTM_arr = [[16,4]]
@@ -163,7 +163,7 @@ if __name__ == '__main__':
     summary = open("results/fuzzy/univariate/mem/5minutes/evaluate_bnn_uber.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
-    pool = Pool(1)
+    pool = Pool(10)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
