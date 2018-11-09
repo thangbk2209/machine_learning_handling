@@ -70,28 +70,10 @@ fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
 dataset_original = [cpu]
 prediction_data = [cpu]
 
-# data vn30
-# link = './data/VNM_03092008_10092018.csv'
-# colnames = ['date','CLOSE','OPEN','HIGH','LOW','VOLUME'] 
-# df = read_csv(link, header=None, index_col=False, names=colnames, engine='python')
-# scaler = MinMaxScaler(feature_range=(0, 1))
-# date = df['date'].values.reshape(-1,1)
-# CLOSE = df['CLOSE'].values.reshape(-1,1)
-# OPEN = df['OPEN'].values.reshape(-1,1)
-# HIGH = df['HIGH'].values.reshape(-1,1)
-# LOW = df['LOW'].values.reshape(-1,1)
-# VOLUME = df['VOLUME'].values.reshape(-1,1)
-# print (VOLUME)
-# # lol
-# dataset_original = [VOLUME]
-# external_feature = [VOLUME]
 
-# dataset_original = np.concatenate((cpu,mem), axis = 1)
-# print (dataset_original)
-# lol61
-train_size = int(0.7 * len(cpu))
+train_size = int(0.6 * len(cpu))
 # print (train_size)
-valid_size = int(0.1 * len(cpu))
+valid_size = int(0.2 * len(cpu))
 
 
 sliding = [2,3,4,5]
