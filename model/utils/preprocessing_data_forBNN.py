@@ -935,3 +935,93 @@ class FuzzyMultivariateTimeseriesBNNUber:
                 datai.append(timeseries[i+j])
             dataX.append(datai)
         return dataX
+
+class LSTM:
+    def __init__(self, original_data = None, prediction_data = None, train_size = None, valid_size = None, 
+        sliding = None,input_dim = None):
+        self.original_data = original_data
+        self.prediction_data = prediction_data
+        self.train_size = train_size
+        self.valid_size = valid_size
+        self.sliding = sliding
+        self.input_dim = input_dim
+    def prepare_data(self):
+        self.scaled_data, self.min_arr, self.max_arr = self.scale_timeseries(self.original_data)
+        self.scale_prediction_data, self.min_prediction_data, self.max_prediction_data = self.scale_timeseries(self.prediction_data)
+
+        self.multivariate_timeseries = self.create_multivariate_timeseries(self.scaled_data)
+        
+        dataX = self.create_x(self.multivariate_timeseries, self.sliding)
+
+        self.train_x = dataX[0:self.train_size - self.sliding]
+        self.train_x = np.array(self.train_x)
+        self.train_x = np.reshape(self.train_x, (self.train_x.shape[0], int(self.train_x.shape[1]*len(self.original_data)/self.input_dim), self.input_dim))
+        
+        self.valid_x = np.array(dataX[self.train_size - self.sliding: self.train_size + self.valid_size - self.sliding])
+        self.valid_x = np.reshape(self.valid_x, (self.valid_x.shape[0], int(self.valid_x.shape[1]*len(self.original_data)/self.input_dim), self.input_dim))
+       
+        self.test_x = np.array(dataX[self.train_size + self.valid_size - self.sliding:])
+        self.test_x = np.reshape(self.test_x, (self.test_x.shape[0], int(self.test_x.shape[1]*len(self.original_data)/self.input_dim), self.input_dim))
+        
+        self.train_y = self.scale_prediction_data[0][self.sliding: self.train_size]
+        self.valid_y = self.scale_prediction_data[0][self.train_size: self.train_size + self.valid_size]
+        self.test_y = self.prediction_data[0][self.train_size + self.valid_size:]
+        self.train_y = np.asarray(self.train_y)
+        self.valid_y = np.asarray(self.valid_y)
+        self.test_y = np.asarray(self.test_y)
+
+        return self.train_x, self.valid_x, self.test_x, self.train_y, self.valid_y, self.test_y, self.min_prediction_data, self.max_prediction_data
+    def scaling_data(self, X):
+        minX = np.amin(X)
+        maxX = np.amax(X)
+        mean = np.mean(X)
+        scale = (X-minX)/(maxX-minX)
+        return scale, minX, maxX
+    def scale_timeseries(self, X):
+        scale = []
+        min_arr = []
+        max_arr = []
+        for i in range(len(X)):
+            scalei, mini, maxi = self.scaling_data(X[i])
+            scale.append(scalei)
+            min_arr.append(mini)
+            max_arr.append(maxi)
+        return scale, min_arr, max_arr
+    """
+    This function concatenate multi timeseries into a multivariate timeseries
+    """
+    def create_multivariate_timeseries(self, X):
+        # print ('===============<>===============')
+        # print (X[0])
+        # print (len(X))
+        # print (X[1])
+        # data = []
+        if(len(X)>1):
+            data = np.concatenate((X[0],X[1]), axis=1)
+            if(len(X) > 2):
+                for i in range(2,len(X),1):
+                    # print (i)
+                    data = np.column_stack((data,X[i]))
+        else:
+            data = []
+            for i in range(len(X[0])):
+                # print(X[0][i])
+                data.append(X[0][i])
+            data = np.array(data)
+        return data
+    """
+    This function create samples with sliding and timseries
+    example: timeseries : [1,2,3,4]
+             sliding = 2
+    output: [[1,2],[2,3],[3,4]]
+    """
+    def create_x(self, timeseries, sliding):
+        # print (len(timeseries))
+        dataX = []
+        for i in range(len(timeseries)-sliding):
+            datai = []
+            for j in range(sliding):
+                datai.append(timeseries[i+j])
+            dataX.append(datai)
+        return dataX
+        

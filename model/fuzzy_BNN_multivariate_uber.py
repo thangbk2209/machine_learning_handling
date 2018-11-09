@@ -395,13 +395,13 @@ class Model:
                     name_inference += str(self.num_units_inference[i])
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
-            folder_to_save_result = 'results/fuzzy/univariate/mem/5minutes/bnn_uber/'
+            folder_to_save_result = 'results/univariate/cpu/5minutes/bnn_uber/'
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
             uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
-            save_path = saver.save(sess, 'results/fuzzy/univariate/mem/5minutes/bnn_uber/model_saved/' +  file_name)
+            save_path = saver.save(sess, 'results/univariate/cpu/5minutes/bnn_uber/model_saved/' +  file_name)
             
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
