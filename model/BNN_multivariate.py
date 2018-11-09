@@ -148,7 +148,7 @@ class Model:
             out_weights=tf.Variable(tf.random_normal([int(self.num_units_LSTM[-1]), 1]))
             out_bias=tf.Variable(tf.random_normal([1]))
             
-            prediction = activation(tf.matmul(outputs_decoder[:,-1,:],out_weights)+out_bias)
+            prediction = activation(tf.matmul(outputs_decoder[:,:,-1],out_weights)+out_bias)
             loss_encoder_decoder = tf.reduce_mean(tf.square(y1-prediction))
             optimizer_encoder_decoder = optimizer.minimize(loss_encoder_decoder)
         else:
@@ -166,11 +166,11 @@ class Model:
             
             out_weights1=tf.Variable(tf.random_normal([int(self.num_units_LSTM[-1]), 1]))
             out_bias1=tf.Variable(tf.random_normal([1]))
-            prediction1 = activation(tf.matmul(outputs_decoder1[:,-1,:],out_weights1)+out_bias1)
+            prediction1 = activation(tf.matmul(outputs_decoder1[:,:,-1],out_weights1)+out_bias1)
 
             out_weights2=tf.Variable(tf.random_normal([int(self.num_units_LSTM[-1]), 1]))
             out_bias2=tf.Variable(tf.random_normal([1]))
-            prediction2 = activation(tf.matmul(outputs_decoder2[:,-1,:],out_weights2)+out_bias2)
+            prediction2 = activation(tf.matmul(outputs_decoder2[:,:,-1],out_weights2)+out_bias2)
             
             loss_encoder_decoder = tf.reduce_mean(tf.square(y11-prediction1) + tf.square(y12-prediction2))
             optimizer_encoder_decoder = optimizer.minimize(loss_encoder_decoder)
