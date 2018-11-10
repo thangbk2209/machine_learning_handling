@@ -166,7 +166,7 @@ class Model:
             
             
             prediction = sess.run(prediction, feed_dict={x:self.test_x, y: self.test_y})
-            prediction = prediction * (max_y[0] - min_y[0]) + min_y[0] 
+            prediction = prediction * (self.max_y[0] - self.min_y[0]) + self.min_y[0] 
             prediction = np.asarray(prediction)
             MAE_err = MAE(prediction,self.test_y)
             RMSE_err = np.sqrt(MSE(prediction,self.test_y))
@@ -181,7 +181,7 @@ class Model:
                     name_LSTM += str(self.num_units_LSTM[i])
                 else:
                     name_LSTM += str(self.num_units_LSTM[i]) +'_'
-            folder_to_save_result = 'results/LSTM/univariate/cpu/5minutes/ver1/'
+            folder_to_save_result = 'results/LSTM/univariate/mem/5minutes/ver1/'
             file_name = str(self.sliding) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'

@@ -67,8 +67,8 @@ fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
 fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
 fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
 fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
-dataset_original = [cpu]
-prediction_data = [cpu]
+dataset_original = [mem]
+prediction_data = [mem]
 
 
 train_size = int(0.6 * len(cpu))
@@ -79,8 +79,8 @@ valid_size = int(0.2 * len(cpu))
 sliding = [2,3,4,5]
 batch_size_arr = [8,16]
 input_dim = [len(dataset_original)]
-num_units_LSTM_arr = [[4]]
-dropout_rate = [0.9]
+num_units_LSTM_arr = [[4],[16,4],[32,4]]
+dropout_rate = [0.5,0.9]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
@@ -115,10 +115,10 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    summary = open("results/LSTM/univariate/cpu/5minutes/evaluate_bnn_uber.csv",'a+')
+    summary = open("results/LSTM/univariate/mem/5minutes/evaluate_bnn_uber.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
-    pool = Pool(2)
+    pool = Pool(3)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
