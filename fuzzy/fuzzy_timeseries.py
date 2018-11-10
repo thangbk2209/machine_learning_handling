@@ -14,19 +14,19 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 
 class Fuzzification():
-    def __init__(self, interval = None):
-        self.interval = interval
+    def __init__(self, num_interval = None):
+        self.num_interval = num_interval
     def fuzzify(self,timeseries):
         timeseries = np.array(timeseries)
         min_value = min(timeseries)[0]
         max_value = max(timeseries)[0]
         # print (min_value)
         # print (round(max_value))
-        u = [round(min_value), round(max_value)]
+        u = [min_value, max_value]
         print (u)
         
-        self.number_of_interval = (u[1] - u[0]) / self.interval
-
+        self.interval = (u[1] - u[0]) / self.num_interval
+        print (self.interval)
         # print (self.number_of_interval)
         arr = []
         for i in range(len(timeseries)):

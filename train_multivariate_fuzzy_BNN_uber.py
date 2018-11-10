@@ -60,7 +60,7 @@ def train_model(item):
             name_inference += str(num_units_inference[i]) +'_'
     file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+ '-' + str(optimizer) + '-' + str(input_dim) + '-' + name_inference +'-'+str(number_out_decoder) +'-'+str(dropout_rate)
             
-    summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver6.csv",'a+')
+    summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver7.csv",'a+')
     summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
     # except:
@@ -77,7 +77,7 @@ mem = df['mem_usage'].values.reshape(-1,1)
 disk_io_time = df['disk_io_time'].values.reshape(-1,1)
 disk_space = df['disk_space'].values.reshape(-1,1)
 
-link_fuzzy = './data/fuzzied/5minutes.csv'
+link_fuzzy = './data/fuzzied/5minutes_ver3.csv'
 fuzzy_df = read_csv(link, header=None, index_col=False, names=colnames, usecols=[0,1,2,3], engine='python')
 fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
 fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
@@ -142,10 +142,10 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver6.csv",'a+')
+    summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver7.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
-    pool = Pool(8)
+    pool = Pool(10)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
