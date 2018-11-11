@@ -166,7 +166,7 @@ class Model:
             
             
             prediction = sess.run(prediction, feed_dict={x:self.test_x, y: self.test_y})
-            prediction = prediction * (max_y[0] - min_y[0]) + min_y[0] 
+            prediction = prediction * (self.max_y[0] - self.min_y[0]) +self.min_y[0] 
             prediction = np.asarray(prediction)
             MAE_err = MAE(prediction,self.test_y)
             RMSE_err = np.sqrt(MSE(prediction,self.test_y))

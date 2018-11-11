@@ -118,7 +118,7 @@ if __name__ == '__main__':
     summary = open("results/LSTM/univariate/cpu/5minutes/evaluate_bnn_uber.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
-    pool = Pool(2)
+    pool = Pool(8)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
