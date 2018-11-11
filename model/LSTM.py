@@ -181,7 +181,7 @@ class Model:
                     name_LSTM += str(self.num_units_LSTM[i])
                 else:
                     name_LSTM += str(self.num_units_LSTM[i]) +'_'
-            folder_to_save_result = 'results/LSTM/univariate/mem/5minutes/ver1/'
+            folder_to_save_result = 'results/LSTM/multivariate/cpu/5minutes/ver1/'
             file_name = str(self.sliding) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'

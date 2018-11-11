@@ -44,7 +44,7 @@ def train_model(item):
             name_LSTM += str(num_units_LSTM[i]) +'_'
     file_name = str(sliding) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+ '-' + str(optimizer) + '-' + str(input_dim) +'-'+str(dropout_rate)
             
-    summary = open("results/LSTM/univariate/cpu/5minutes/evaluate_bnn_uber.csv",'a+')
+    summary = open("results/LSTM/multivariate/cpu/5minutes/evaluate_bnn_uber.csv",'a+')
     summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
     # except:
@@ -67,8 +67,8 @@ fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
 fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
 fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
 fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
-dataset_original = [mem]
-prediction_data = [mem]
+dataset_original = [mem,cpu]
+prediction_data = [cpu]
 
 
 train_size = int(0.6 * len(cpu))
@@ -115,10 +115,10 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    summary = open("results/LSTM/univariate/mem/5minutes/evaluate_bnn_uber.csv",'a+')
+    summary = open("results/LSTM/multivariate/cpu/5minutes/evaluate_bnn_uber.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
-    pool = Pool(3)
+    pool = Pool(2)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
