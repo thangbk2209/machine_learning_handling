@@ -398,14 +398,19 @@ class Model:
                     name_inference += str(self.num_units_inference[i])
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
+<<<<<<< HEAD
             folder_to_save_result = 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber_ver6/'
+=======
+
+            folder_to_save_result = 'results/fuzzy/univariate/cpu/5minutes/bnn_uber/'
+>>>>>>> 9b354cc0276830a1cb9f97b2ee9bcf1952508534
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
-            uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
-            save_path = saver.save(sess,folder_to_save_result + 'model_saved/' +  file_name +'/model')
-            
+
+            uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name +
+            save_path = saver.save(sess, 'results/fuzzy/univariate/cpu/5minutes/bnn_uber/model_saved/' +  file_name + '/model')            
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
             plt.plot(cost_train_encoder_decoder_set)

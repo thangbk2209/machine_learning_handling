@@ -59,9 +59,7 @@ def train_model(item):
         else:
             name_inference += str(num_units_inference[i]) +'_'
     file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+ '-' + str(optimizer) + '-' + str(input_dim) + '-' + name_inference +'-'+str(number_out_decoder) +'-'+str(dropout_rate)
-            
     summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver6.csv",'a+')
-    summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
     # except:
     #     traceback.print_stack()
@@ -142,7 +140,6 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver6.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
     pool = Pool(8)
