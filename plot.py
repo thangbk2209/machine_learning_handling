@@ -40,16 +40,16 @@ i = 0
 max_cpu = 56.86312103270001
 min_cpu = 0.0
 # file = '18-8-8-8-[16, 4]-1-2-[16]-2-2.csv'
-file = '18-4-9-16-16_4-1-2-1-8-1-0.9.csv'
+file = '24-4-9-16-16_4-1-2-1-16-1-0.9.csv'
 
 print (str(file))
 # file_path = 'testANN.csv'
-file_path = 'results/fuzzy/univariate/mem/5minutes/bnn_uber/prediction/'+str(file)
+file_path = 'results/fuzzy/univariate/cpu/5minutes/bnn_uber/prediction/'+str(file)
 Pred_df = read_csv(file_path, header=None, index_col=False, engine='python')
 file_name = file.split('.')[0]
 # error_df = read_csv('results/cpu/5minutes/bnn_multivariate_uber/prediction/' +file, header=None, index_col=False, engine='python')
 
-RealDataset = mem
+RealDataset = cpu
 
 train_size = int(len(RealDataset)*0.8)
 test_size = len(RealDataset) - train_size
@@ -86,6 +86,6 @@ plt.plot(Pred)
 plt.ylabel('CPU')
 plt.xlabel('Timestamp')
 plt.legend(['Actual', 'Predict'], loc='upper right')
-plt.savefig('results/images/fuzzy_uni_bnn_mem.png')
+plt.savefig('results/images/fuzzy_uni_bnn_cpu.png')
 plt.show()
 plt.close()
