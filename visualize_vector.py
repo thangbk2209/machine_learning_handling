@@ -7,7 +7,7 @@ import pickle as pk
 import numpy as np
 from pandas import read_csv
 from sklearn.cluster import KMeans
-file_to_save_vector = 'results/mem/5minutes/vector_presentation24-5-3-32-2-1-1-1-1-8-1.csv'
+file_to_save_vector = 'results/multivariate/cpu/5minutes/bnn_multivariate_uber_ver2/vector_representation/18-3-10-8-16_4-1-3-2-16-1-0.75.csv'
 def read_trained_data(file_trained_data):
     vector_df = read_csv(file_trained_data, header=None, index_col=False, engine='python')
     vector = vector_df.values
