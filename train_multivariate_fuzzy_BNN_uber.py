@@ -118,7 +118,7 @@ patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
 num_units_inference_arr = [[16]]
-number_out_decoder = [1,2]
+number_out_decoder = [1]
 n_output_encoder_decoder = 1
 param_grid = {
         'sliding_encoder': sliding_encoders,
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     summary = open("results/univariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver2.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
-    pool = Pool(8)
+    pool = Pool(4)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
