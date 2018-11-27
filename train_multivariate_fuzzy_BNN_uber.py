@@ -112,8 +112,8 @@ activation= [1,3]
 optimizers = [2,3]
 
 learning_rate = 0.005
-epochs_encoder_decoder = 1
-epochs_inference = 1
+epochs_encoder_decoder = 2000
+epochs_inference = 2000
 patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     summary = open("results/univariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver2.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
-    pool = Pool(1)
+    pool = Pool(8)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()
