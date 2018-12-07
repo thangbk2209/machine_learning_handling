@@ -67,7 +67,7 @@ fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
 fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
 fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
 fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
-dataset_original = [mem,cpu]
+dataset_original = [cpu,mem]
 prediction_data = [cpu]
 
 
@@ -76,10 +76,10 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding = [2,3,4,5]
+sliding = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
 batch_size_arr = [8,16]
 input_dim = [len(dataset_original)]
-num_units_LSTM_arr = [[4],[16,4],[32,4]]
+num_units_LSTM_arr = [[4],[16,4]]
 dropout_rate = [0.5,0.9]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
